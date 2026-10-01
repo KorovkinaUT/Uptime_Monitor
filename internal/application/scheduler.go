@@ -45,8 +45,13 @@ func (s *Scheduler) Start(ctx context.Context) {
 	s.logger.Info("scheduler started", "interval", s.interval)
 }
 
-func (s *Scheduler) Wait() {
-	<-s.done
+func (s *Scheduler) Wait(ctx context.Context) error {
+	select {
+	case <-s.done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 func (s *Scheduler) run(ctx context.Context) {
