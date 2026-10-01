@@ -9,18 +9,19 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/ulyana/uptime-monitor/internal/application"
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
 // MonitorRepository stores monitors in PostgreSQL
 type MonitorRepository struct {
-	pool queryPool
+	pool *pgxpool.Pool
 }
 
 var _ application.MonitorRepository = (*MonitorRepository)(nil)
 
-func NewMonitorRepository(pool queryPool) *MonitorRepository {
+func NewMonitorRepository(pool *pgxpool.Pool) *MonitorRepository {
 	return &MonitorRepository{pool: pool}
 }
 
