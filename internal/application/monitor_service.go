@@ -7,6 +7,12 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// MonitorWithLastCheck combines a monitor with its latest check
+type MonitorWithLastCheck struct {
+	Monitor   domain.Monitor
+	LastCheck *domain.Check
+}
+
 // MonitorService manages monitor lifecycle operations
 type MonitorService struct {
 	monitors MonitorRepository

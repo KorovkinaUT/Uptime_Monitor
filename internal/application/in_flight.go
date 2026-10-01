@@ -6,6 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
+// InFlightController coordinates active monitor checks
+type InFlightController interface {
+	TryStart(id uuid.UUID) bool
+	Release(id uuid.UUID)
+}
+
 // InFlightRegistry prevents concurrent checks for the same monitor
 type InFlightRegistry struct {
 	mu     sync.Mutex

@@ -5,12 +5,24 @@ import (
 	"errors"
 	"log/slog"
 	"sync"
+
+	"github.com/google/uuid"
 )
 
 var ErrWorkerPoolStopped = errors.New("worker pool stopped")
 
 // JobHandler processes one queued check job
 type JobHandler func(ctx context.Context, job CheckJob) error
+
+// JobQueue accepts monitor check jobs
+type JobQueue interface {
+	Enqueue(ctx context.Context, job CheckJob) error
+}
+
+// CheckJob identifies a monitor to check
+type CheckJob struct {
+	MonitorID uuid.UUID
+}
 
 // WorkerPool processes check jobs with bounded concurrency
 type WorkerPool struct {
