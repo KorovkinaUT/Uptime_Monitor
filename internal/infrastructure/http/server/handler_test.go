@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"errors"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,6 +14,11 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/application"
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
+
+// newTestLogger creates a silent logger for handler tests
+func newTestLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
+}
 
 type fakeMonitorService struct {
 	created application.MonitorWithLastCheck
