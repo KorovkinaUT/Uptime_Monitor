@@ -32,11 +32,12 @@ func (s *MonitorService) Create(ctx context.Context, monitor domain.Monitor) (Mo
 		monitor.ID = uuid.New()
 	}
 
-	if err := s.monitors.Create(ctx, monitor); err != nil {
+	savedMonitor, err := s.monitors.Create(ctx, monitor)
+	if err != nil {
 		return MonitorWithLastCheck{}, err
 	}
 
-	return s.Get(ctx, monitor.ID)
+	return MonitorWithLastCheck{Monitor: savedMonitor}, nil
 }
 
 // Get returns a monitor with its latest check

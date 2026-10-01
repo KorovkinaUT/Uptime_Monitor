@@ -18,7 +18,6 @@ type CheckRepository struct {
 
 var _ application.CheckRepository = (*CheckRepository)(nil)
 
-// NewCheckRepository creates a PostgreSQL check repository
 func NewCheckRepository(pool *pgxpool.Pool) *CheckRepository {
 	return &CheckRepository{pool: pool}
 }

@@ -10,7 +10,7 @@ import (
 
 // MonitorRepository stores and retrieves monitors
 type MonitorRepository interface {
-	Create(ctx context.Context, monitor domain.Monitor) error
+	Create(ctx context.Context, monitor domain.Monitor) (domain.Monitor, error)
 	GetByID(ctx context.Context, id uuid.UUID) (domain.Monitor, error)
 	ListWithLastCheck(ctx context.Context) ([]MonitorWithLastCheck, error)
 	Update(ctx context.Context, monitor domain.Monitor) error

@@ -25,17 +25,35 @@ func NewMonitorRepository(pool *pgxpool.Pool) *MonitorRepository {
 	return &MonitorRepository{pool: pool}
 }
 
-// Create saves one monitor
-func (r *MonitorRepository) Create(ctx context.Context, monitor domain.Monitor) error {
+// Create saves and returns one monitor
+func (r *MonitorRepository) Create(ctx context.Context, monitor domain.Monitor) (domain.Monitor, error) {
 	const query = `
 		INSERT INTO monitors (id, name, url, interval_seconds, timeout_seconds, enabled)
-		VALUES ($1, $2, $3, $4, $5, $6)`
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, name, url, interval_seconds, timeout_seconds, enabled`
 
-	_, err := r.pool.Exec(ctx, query, monitor.ID, monitor.Name, monitor.URL, monitor.IntervalSeconds, monitor.TimeoutSeconds, monitor.Enabled)
+	var savedMonitor domain.Monitor
+	err := r.pool.QueryRow(
+		ctx,
+		query,
+		monitor.ID,
+		monitor.Name,
+		monitor.URL,
+		monitor.IntervalSeconds,
+		monitor.TimeoutSeconds,
+		monitor.Enabled,
+	).Scan(
+		&savedMonitor.ID,
+		&savedMonitor.Name,
+		&savedMonitor.URL,
+		&savedMonitor.IntervalSeconds,
+		&savedMonitor.TimeoutSeconds,
+		&savedMonitor.Enabled,
+	)
 	if err != nil {
-		return fmt.Errorf("insert monitor: %w", err)
+		return domain.Monitor{}, fmt.Errorf("insert monitor: %w", err)
 	}
-	return nil
+	return savedMonitor, nil
 }
 
 // GetByID returns a monitor by identifier
@@ -185,7 +203,6 @@ func (r *MonitorRepository) Delete(ctx context.Context, id uuid.UUID) error {
 
 // ListDue returns enabled monitors whose checks are overdue
 func (r *MonitorRepository) ListDue(ctx context.Context, now time.Time) ([]domain.Monitor, error) {
-	// Select only enabled monitors whose latest check is overdue
 	const query = `
 		SELECT m.id, m.name, m.url, m.interval_seconds, m.timeout_seconds, m.enabled
 		FROM monitors AS m
