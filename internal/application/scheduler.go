@@ -50,6 +50,7 @@ func (s *Scheduler) Wait() {
 }
 
 func (s *Scheduler) run(ctx context.Context) {
+	// Run an immediate scan before starting the periodic ticker
 	defer close(s.done)
 
 	s.schedule(ctx)
@@ -67,6 +68,7 @@ func (s *Scheduler) run(ctx context.Context) {
 }
 
 func (s *Scheduler) schedule(ctx context.Context) {
+	// Reserve each monitor before enqueueing its job
 	dueMonitors, err := s.monitors.ListDue(ctx, s.now().UTC())
 	if err != nil {
 		if ctx.Err() == nil {

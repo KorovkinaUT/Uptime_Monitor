@@ -49,6 +49,7 @@ func (s *CheckService) Check(ctx context.Context, monitorID uuid.UUID) (domain.C
 }
 
 func (s *CheckService) RunClaimed(ctx context.Context, monitorID uuid.UUID) (domain.Check, error) {
+	// Run a check for a monitor already reserved by scheduler or manual request
 	defer s.inFlight.Release(monitorID)
 
 	monitor, err := s.monitors.GetByID(ctx, monitorID)

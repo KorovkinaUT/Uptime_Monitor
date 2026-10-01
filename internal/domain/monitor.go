@@ -19,6 +19,7 @@ type Monitor struct {
 }
 
 func (m Monitor) Validate() error {
+	// Validate monitor fields before persistence
 	if strings.TrimSpace(m.Name) == "" {
 		return fmt.Errorf("%w: name is required", ErrInvalidMonitor)
 	}

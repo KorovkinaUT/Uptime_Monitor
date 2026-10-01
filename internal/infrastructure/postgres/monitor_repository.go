@@ -59,6 +59,7 @@ WHERE id = $1`
 }
 
 func (r *MonitorRepository) ListWithLastCheck(ctx context.Context) ([]application.MonitorWithLastCheck, error) {
+	// Fetch the latest check in one query to avoid N+1 reads
 	const query = `
 SELECT
 	m.id,
@@ -175,6 +176,7 @@ func (r *MonitorRepository) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (r *MonitorRepository) ListDue(ctx context.Context, now time.Time) ([]domain.Monitor, error) {
+	// Select only enabled monitors whose latest check is overdue
 	const query = `
 SELECT m.id, m.name, m.url, m.interval_seconds, m.timeout_seconds, m.enabled
 FROM monitors AS m

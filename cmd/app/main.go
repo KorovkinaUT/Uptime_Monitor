@@ -26,6 +26,7 @@ func main() {
 }
 
 func run(logger *slog.Logger) error {
+	// Build all application dependencies in the composition root
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
@@ -94,6 +95,7 @@ func run(logger *slog.Logger) error {
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	// Stop HTTP intake before draining scheduler and worker activity
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		logger.Error("HTTP server shutdown failed", "error", err)
 		if serverErr == nil {

@@ -21,6 +21,7 @@ func NewHTTPChecker(client *http.Client) *HTTPChecker {
 }
 
 func (c *HTTPChecker) Check(ctx context.Context, monitor domain.Monitor) (application.CheckResult, error) {
+	// Apply the timeout configured for this monitor only
 	requestCtx, cancel := context.WithTimeout(ctx, time.Duration(monitor.TimeoutSeconds)*time.Second)
 	defer cancel()
 
@@ -33,6 +34,7 @@ func (c *HTTPChecker) Check(ctx context.Context, monitor domain.Monitor) (applic
 	response, err := c.client.Do(request)
 	latency := time.Since(start).Milliseconds()
 	if err != nil {
+		// Persist transport failures as down results without a status code
 		errorText := err.Error()
 		return application.CheckResult{
 			Status:    domain.CheckStatusDown,

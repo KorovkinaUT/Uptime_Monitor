@@ -72,6 +72,7 @@ func (p *WorkerPool) Enqueue(ctx context.Context, job CheckJob) error {
 }
 
 func (p *WorkerPool) Stop(ctx context.Context) error {
+	// Close intake first so workers can drain the bounded queue
 	p.mu.Lock()
 	if !p.stopped {
 		p.stopped = true
@@ -98,6 +99,7 @@ func (p *WorkerPool) Stop(ctx context.Context) error {
 }
 
 func (p *WorkerPool) worker() {
+	// Keep one goroutine per configured worker slot
 	defer p.wg.Done()
 
 	for {

@@ -12,6 +12,7 @@ import (
 )
 
 func decodeJSON(request *http.Request, destination any) error {
+	// Reject unknown fields and trailing JSON values
 	decoder := json.NewDecoder(request.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(destination); err != nil {
