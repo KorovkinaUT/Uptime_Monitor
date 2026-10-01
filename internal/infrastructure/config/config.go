@@ -2,79 +2,49 @@ package config
 
 import (
 	"fmt"
-	"os"
-	"strconv"
+
+	"github.com/kelseyhightower/envconfig"
 )
 
 // Config contains application settings loaded from the environment
 type Config struct {
-	HTTPAddr            string
-	DatabaseURL         string
-	WorkerCount         int
-	JobQueueCapacity    int
-	SchedulerInterval   int
-	DatabasePingTimeout int
-	ShutdownTimeout     int
+	HTTPAddr            string `envconfig:"HTTP_ADDR" default:":8080"`
+	DatabaseURL         string `envconfig:"DATABASE_URL" required:"true"`
+	WorkerCount         int    `envconfig:"WORKER_COUNT" default:"5"`
+	JobQueueCapacity    int    `envconfig:"JOB_QUEUE_CAPACITY" default:"100"`
+	SchedulerInterval   int    `envconfig:"SCHEDULER_INTERVAL" default:"1"`
+	DatabasePingTimeout int    `envconfig:"DATABASE_PING_TIMEOUT" default:"5"`
+	ShutdownTimeout     int    `envconfig:"SHUTDOWN_TIMEOUT" default:"10"`
 }
 
 // Load reads and validates application settings
 func Load() (Config, error) {
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		return Config{}, fmt.Errorf("DATABASE_URL is required")
+	var cfg Config
+	if err := envconfig.Process("", &cfg); err != nil {
+		return Config{}, fmt.Errorf("load environment config: %w", err)
 	}
-
-	workerCount, err := positiveIntEnv("WORKER_COUNT", 5)
-	if err != nil {
+	if err := cfg.validate(); err != nil {
 		return Config{}, err
 	}
-	queueCapacity, err := positiveIntEnv("JOB_QUEUE_CAPACITY", 100)
-	if err != nil {
-		return Config{}, err
-	}
-	schedulerInterval, err := positiveIntEnv("SCHEDULER_INTERVAL", 1)
-	if err != nil {
-		return Config{}, err
-	}
-	databasePingTimeout, err := positiveIntEnv("DATABASE_PING_TIMEOUT", 5)
-	if err != nil {
-		return Config{}, err
-	}
-	shutdownTimeout, err := positiveIntEnv("SHUTDOWN_TIMEOUT", 10)
-	if err != nil {
-		return Config{}, err
-	}
-
-	return Config{
-		HTTPAddr:            envOrDefault("HTTP_ADDR", ":8080"),
-		DatabaseURL:         databaseURL,
-		WorkerCount:         workerCount,
-		JobQueueCapacity:    queueCapacity,
-		SchedulerInterval:   schedulerInterval,
-		DatabasePingTimeout: databasePingTimeout,
-		ShutdownTimeout:     shutdownTimeout,
-	}, nil
+	return cfg, nil
 }
 
-// envOrDefault returns an environment value or fallback
-func envOrDefault(name, fallback string) string {
-	value := os.Getenv(name)
-	if value == "" {
-		return fallback
+// validate checks numeric settings loaded from the environment
+func (c Config) validate() error {
+	settings := []struct {
+		name  string
+		value int
+	}{
+		{name: "WORKER_COUNT", value: c.WorkerCount},
+		{name: "JOB_QUEUE_CAPACITY", value: c.JobQueueCapacity},
+		{name: "SCHEDULER_INTERVAL", value: c.SchedulerInterval},
+		{name: "DATABASE_PING_TIMEOUT", value: c.DatabasePingTimeout},
+		{name: "SHUTDOWN_TIMEOUT", value: c.ShutdownTimeout},
 	}
-	return value
-}
-
-// positiveIntEnv reads a positive integer setting
-func positiveIntEnv(name string, fallback int) (int, error) {
-	value := os.Getenv(name)
-	if value == "" {
-		return fallback, nil
+	for _, setting := range settings {
+		if setting.value < 1 {
+			return fmt.Errorf("%s must be a positive integer", setting.name)
+		}
 	}
-
-	parsed, err := strconv.Atoi(value)
-	if err != nil || parsed < 1 {
-		return 0, fmt.Errorf("%s must be a positive integer", name)
-	}
-	return parsed, nil
+	return nil
 }
