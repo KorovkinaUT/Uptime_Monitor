@@ -69,7 +69,7 @@ func run(logger *slog.Logger) error {
 		monitorRepository,
 		inFlight,
 		workerPool,
-		time.Duration(cfg.SchedulerIntervalSeconds)*time.Second,
+		time.Duration(cfg.SchedulerInterval)*time.Second,
 		logger,
 	)
 	scheduler.Start(ctx)

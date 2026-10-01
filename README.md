@@ -51,7 +51,7 @@ docker compose down
 | `DATABASE_URL` | — | PostgreSQL connection string для локального запуска |
 | `WORKER_COUNT` | `5` | Количество worker goroutines |
 | `JOB_QUEUE_CAPACITY` | `100` | Максимальный размер очереди jobs |
-| `SCHEDULER_INTERVAL_SECONDS` | `1` | Частота работы scheduler |
+| `SCHEDULER_INTERVAL` | `1` | Частота работы scheduler в секундах |
 | `DATABASE_PING_TIMEOUT` | `5` | Timeout проверки подключения к PostgreSQL в секундах |
 | `SHUTDOWN_TIMEOUT` | `10` | Timeout graceful shutdown в секундах |
 | `POSTGRES_HEALTHCHECK_TIMEOUT` | `5s` | Timeout PostgreSQL healthcheck в Compose |

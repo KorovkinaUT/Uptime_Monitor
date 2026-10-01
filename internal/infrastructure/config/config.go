@@ -7,13 +7,13 @@ import (
 )
 
 type Config struct {
-	HTTPAddr                 string
-	DatabaseURL              string
-	WorkerCount              int
-	JobQueueCapacity         int
-	SchedulerIntervalSeconds int
-	DatabasePingTimeout      int
-	ShutdownTimeout          int
+	HTTPAddr            string
+	DatabaseURL         string
+	WorkerCount         int
+	JobQueueCapacity    int
+	SchedulerInterval   int
+	DatabasePingTimeout int
+	ShutdownTimeout     int
 }
 
 func Load() (Config, error) {
@@ -30,7 +30,7 @@ func Load() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-	schedulerInterval, err := positiveIntEnv("SCHEDULER_INTERVAL_SECONDS", 1)
+	schedulerInterval, err := positiveIntEnv("SCHEDULER_INTERVAL", 1)
 	if err != nil {
 		return Config{}, err
 	}
@@ -44,13 +44,13 @@ func Load() (Config, error) {
 	}
 
 	return Config{
-		HTTPAddr:                 envOrDefault("HTTP_ADDR", ":8080"),
-		DatabaseURL:              databaseURL,
-		WorkerCount:              workerCount,
-		JobQueueCapacity:         queueCapacity,
-		SchedulerIntervalSeconds: schedulerInterval,
-		DatabasePingTimeout:      databasePingTimeout,
-		ShutdownTimeout:          shutdownTimeout,
+		HTTPAddr:            envOrDefault("HTTP_ADDR", ":8080"),
+		DatabaseURL:         databaseURL,
+		WorkerCount:         workerCount,
+		JobQueueCapacity:    queueCapacity,
+		SchedulerInterval:   schedulerInterval,
+		DatabasePingTimeout: databasePingTimeout,
+		ShutdownTimeout:     shutdownTimeout,
 	}, nil
 }
 
