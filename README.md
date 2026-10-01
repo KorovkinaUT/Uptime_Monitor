@@ -15,7 +15,7 @@ Uptime Monitor — небольшое клиент-серверное прило
 
 ## Стек
 
-- Go 1.26, `net/http`, chi и `log/slog`
+- Go 1.26, `net/http`, `chi` и `log/slog`
 - PostgreSQL и `pgx/v5/pgxpool`
 - HTML, CSS и Vanilla JavaScript
 - Docker Compose и SQL migrations
@@ -112,10 +112,4 @@ go test ./...
 go vet ./...
 go build ./...
 docker compose config
-```
-
-Для запуска без Docker требуется доступный PostgreSQL и переменная `DATABASE_URL`:
-
-```bash
-go run ./cmd/app
 ```
