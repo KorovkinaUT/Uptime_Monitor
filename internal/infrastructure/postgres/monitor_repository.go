@@ -19,7 +19,8 @@ type MonitorRepository struct {
 	pool *pgxpool.Pool
 }
 
-// NewMonitorRepository creates a PostgreSQL monitor repository
+var _ application.MonitorRepository = (*MonitorRepository)(nil)
+
 func NewMonitorRepository(pool *pgxpool.Pool) *MonitorRepository {
 	return &MonitorRepository{pool: pool}
 }
@@ -27,8 +28,8 @@ func NewMonitorRepository(pool *pgxpool.Pool) *MonitorRepository {
 // Create saves one monitor
 func (r *MonitorRepository) Create(ctx context.Context, monitor domain.Monitor) error {
 	const query = `
-INSERT INTO monitors (id, name, url, interval_seconds, timeout_seconds, enabled)
-VALUES ($1, $2, $3, $4, $5, $6)`
+		INSERT INTO monitors (id, name, url, interval_seconds, timeout_seconds, enabled)
+		VALUES ($1, $2, $3, $4, $5, $6)`
 
 	_, err := r.pool.Exec(ctx, query, monitor.ID, monitor.Name, monitor.URL, monitor.IntervalSeconds, monitor.TimeoutSeconds, monitor.Enabled)
 	if err != nil {
@@ -40,9 +41,9 @@ VALUES ($1, $2, $3, $4, $5, $6)`
 // GetByID returns a monitor by identifier
 func (r *MonitorRepository) GetByID(ctx context.Context, id uuid.UUID) (domain.Monitor, error) {
 	const query = `
-SELECT id, name, url, interval_seconds, timeout_seconds, enabled
-FROM monitors
-WHERE id = $1`
+		SELECT id, name, url, interval_seconds, timeout_seconds, enabled
+		FROM monitors
+		WHERE id = $1`
 
 	var monitor domain.Monitor
 	err := r.pool.QueryRow(ctx, query, id).Scan(
@@ -66,27 +67,27 @@ WHERE id = $1`
 func (r *MonitorRepository) ListWithLastCheck(ctx context.Context) ([]application.MonitorWithLastCheck, error) {
 	// Fetch the latest check in one query to avoid N+1 reads
 	const query = `
-SELECT
-	m.id,
-	m.name,
-	m.url,
-	m.interval_seconds,
-	m.timeout_seconds,
-	m.enabled,
-	latest.status,
-	latest.status_code,
-	latest.latency_ms,
-	latest.error,
-	latest.checked_at
-FROM monitors AS m
-LEFT JOIN LATERAL (
-	SELECT status, status_code, latency_ms, error, checked_at
-	FROM checks
-	WHERE monitor_id = m.id
-	ORDER BY checked_at DESC
-	LIMIT 1
-) AS latest ON TRUE
-ORDER BY m.name, m.id`
+		SELECT
+			m.id,
+			m.name,
+			m.url,
+			m.interval_seconds,
+			m.timeout_seconds,
+			m.enabled,
+			latest.status,
+			latest.status_code,
+			latest.latency_ms,
+			latest.error,
+			latest.checked_at
+		FROM monitors AS m
+		LEFT JOIN LATERAL (
+			SELECT status, status_code, latency_ms, error, checked_at
+			FROM checks
+			WHERE monitor_id = m.id
+			ORDER BY checked_at DESC
+			LIMIT 1
+		) AS latest ON TRUE
+		ORDER BY m.name, m.id`
 
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
@@ -152,9 +153,9 @@ ORDER BY m.name, m.id`
 // Update changes an existing monitor
 func (r *MonitorRepository) Update(ctx context.Context, monitor domain.Monitor) error {
 	const query = `
-UPDATE monitors
-SET name = $2, url = $3, interval_seconds = $4, timeout_seconds = $5, enabled = $6
-WHERE id = $1`
+		UPDATE monitors
+		SET name = $2, url = $3, interval_seconds = $4, timeout_seconds = $5, enabled = $6
+		WHERE id = $1`
 
 	tag, err := r.pool.Exec(ctx, query, monitor.ID, monitor.Name, monitor.URL, monitor.IntervalSeconds, monitor.TimeoutSeconds, monitor.Enabled)
 	if err != nil {
@@ -168,7 +169,9 @@ WHERE id = $1`
 
 // Delete removes a monitor
 func (r *MonitorRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	const query = `DELETE FROM monitors WHERE id = $1`
+	const query = `
+		DELETE FROM monitors
+		WHERE id = $1`
 
 	tag, err := r.pool.Exec(ctx, query, id)
 	if err != nil {
@@ -184,21 +187,21 @@ func (r *MonitorRepository) Delete(ctx context.Context, id uuid.UUID) error {
 func (r *MonitorRepository) ListDue(ctx context.Context, now time.Time) ([]domain.Monitor, error) {
 	// Select only enabled monitors whose latest check is overdue
 	const query = `
-SELECT m.id, m.name, m.url, m.interval_seconds, m.timeout_seconds, m.enabled
-FROM monitors AS m
-LEFT JOIN LATERAL (
-	SELECT checked_at
-	FROM checks
-	WHERE monitor_id = m.id
-	ORDER BY checked_at DESC
-	LIMIT 1
-) AS latest ON TRUE
-WHERE m.enabled = TRUE
-  AND (
-		latest.checked_at IS NULL
-		OR latest.checked_at + (m.interval_seconds * INTERVAL '1 second') <= $1
-	)
-ORDER BY m.id`
+		SELECT m.id, m.name, m.url, m.interval_seconds, m.timeout_seconds, m.enabled
+		FROM monitors AS m
+		LEFT JOIN LATERAL (
+			SELECT checked_at
+			FROM checks
+			WHERE monitor_id = m.id
+			ORDER BY checked_at DESC
+			LIMIT 1
+		) AS latest ON TRUE
+		WHERE m.enabled = TRUE
+		  AND (
+			latest.checked_at IS NULL
+			OR latest.checked_at + (m.interval_seconds * INTERVAL '1 second') <= $1
+		)
+		ORDER BY m.id`
 
 	rows, err := r.pool.Query(ctx, query, now)
 	if err != nil {

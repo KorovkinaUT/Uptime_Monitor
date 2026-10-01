@@ -14,7 +14,6 @@ type Checker struct {
 	client *http.Client
 }
 
-// NewChecker creates a checker with an internal HTTP client
 func NewChecker() *Checker {
 	client := &http.Client{}
 	return &Checker{client: client}

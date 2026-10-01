@@ -25,7 +25,6 @@ type MonitorHandler struct {
 	logger  *slog.Logger
 }
 
-// NewMonitorHandler creates a monitor request handler
 func NewMonitorHandler(service MonitorService, logger *slog.Logger) *MonitorHandler {
 	return &MonitorHandler{service: service, logger: logger}
 }

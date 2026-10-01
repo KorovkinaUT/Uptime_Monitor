@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/ulyana/uptime-monitor/internal/application"
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
@@ -14,6 +15,8 @@ import (
 type CheckRepository struct {
 	pool *pgxpool.Pool
 }
+
+var _ application.CheckRepository = (*CheckRepository)(nil)
 
 // NewCheckRepository creates a PostgreSQL check repository
 func NewCheckRepository(pool *pgxpool.Pool) *CheckRepository {
@@ -23,8 +26,8 @@ func NewCheckRepository(pool *pgxpool.Pool) *CheckRepository {
 // Create saves one check result
 func (r *CheckRepository) Create(ctx context.Context, check domain.Check) error {
 	const query = `
-INSERT INTO checks (id, monitor_id, status, status_code, latency_ms, error, checked_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)`
+		INSERT INTO checks (id, monitor_id, status, status_code, latency_ms, error, checked_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	_, err := r.pool.Exec(ctx, query, check.ID, check.MonitorID, check.Status, check.StatusCode, check.LatencyMS, check.Error, check.CheckedAt)
 	if err != nil {
@@ -36,11 +39,11 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)`
 // ListByMonitorID returns recent checks for a monitor
 func (r *CheckRepository) ListByMonitorID(ctx context.Context, monitorID uuid.UUID, limit int) ([]domain.Check, error) {
 	const query = `
-SELECT id, monitor_id, status, status_code, latency_ms, error, checked_at
-FROM checks
-WHERE monitor_id = $1
-ORDER BY checked_at DESC
-LIMIT $2`
+		SELECT id, monitor_id, status, status_code, latency_ms, error, checked_at
+		FROM checks
+		WHERE monitor_id = $1
+		ORDER BY checked_at DESC
+		LIMIT $2`
 
 	rows, err := r.pool.Query(ctx, query, monitorID, limit)
 	if err != nil {

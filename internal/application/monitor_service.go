@@ -19,7 +19,6 @@ type MonitorService struct {
 	checks   CheckRepository
 }
 
-// NewMonitorService creates a monitor service
 func NewMonitorService(monitors MonitorRepository, checks CheckRepository) *MonitorService {
 	return &MonitorService{monitors: monitors, checks: checks}
 }

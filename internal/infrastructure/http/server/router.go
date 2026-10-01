@@ -14,7 +14,6 @@ type handler struct {
 	webDir         string
 }
 
-// newHandler builds handlers from application dependencies
 func newHandler(dependencies Dependencies) *handler {
 	logger := dependencies.Logger
 	if logger == nil {

@@ -22,7 +22,6 @@ type Server struct {
 	httpServer *http.Server
 }
 
-// NewServer creates an HTTP server from application dependencies
 func NewServer(addr string, dependencies Dependencies) *Server {
 	return &Server{
 		httpServer: &http.Server{

@@ -20,7 +20,6 @@ type CheckService struct {
 	now      func() time.Time
 }
 
-// NewCheckService creates a check service
 func NewCheckService(
 	monitors MonitorRepository,
 	checks CheckRepository,
@@ -53,7 +52,6 @@ func (s *CheckService) Check(ctx context.Context, monitorID uuid.UUID) (domain.C
 
 // RunClaimed executes a check for a reserved monitor
 func (s *CheckService) RunClaimed(ctx context.Context, monitorID uuid.UUID) (domain.Check, error) {
-	// Run a check for a monitor already reserved by scheduler or manual request
 	defer s.inFlight.Release(monitorID)
 
 	monitor, err := s.monitors.GetByID(ctx, monitorID)
@@ -96,4 +94,19 @@ func (s *CheckService) ListHistory(ctx context.Context, monitorID uuid.UUID, lim
 	}
 
 	return s.checks.ListByMonitorID(ctx, monitorID, limit)
+}
+
+// logDownCheck records a failed monitor check
+func logDownCheck(logger *slog.Logger, monitorID uuid.UUID, check domain.Check) {
+	var statusCode any
+	if check.StatusCode != nil {
+		statusCode = *check.StatusCode
+	}
+
+	var checkError any
+	if check.Error != nil {
+		checkError = *check.Error
+	}
+
+	logger.Warn("monitor check is down", "monitor_id", monitorID, "status_code", statusCode, "error", checkError)
 }

@@ -22,7 +22,6 @@ type CheckHandler struct {
 	logger  *slog.Logger
 }
 
-// NewCheckHandler creates a check request handler
 func NewCheckHandler(service CheckService, logger *slog.Logger) *CheckHandler {
 	return &CheckHandler{service: service, logger: logger}
 }
