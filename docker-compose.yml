@@ -31,14 +31,9 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    env_file: .env
     environment:
-      HTTP_ADDR: ${HTTP_ADDR}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
-      WORKER_COUNT: ${WORKER_COUNT}
-      JOB_QUEUE_CAPACITY: ${JOB_QUEUE_CAPACITY}
-      SCHEDULER_INTERVAL: ${SCHEDULER_INTERVAL}
-      DATABASE_PING_TIMEOUT: ${DATABASE_PING_TIMEOUT}
-      SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT}
     ports:
       - "${APP_PORT}:8080"
 
