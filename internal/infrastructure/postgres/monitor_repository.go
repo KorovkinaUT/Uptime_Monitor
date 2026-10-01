@@ -127,15 +127,13 @@ ORDER BY m.name, m.id`
 				Status:    domain.CheckStatus(status.String),
 			}
 			if statusCode.Valid {
-				value := int(statusCode.Int32)
-				check.StatusCode = &value
+				check.StatusCode = new(int(statusCode.Int32))
 			}
 			if latencyMS.Valid {
 				check.LatencyMS = latencyMS.Int64
 			}
 			if checkError.Valid {
-				value := checkError.String
-				check.Error = &value
+				check.Error = new(checkError.String)
 			}
 			if checkedAt.Valid {
 				check.CheckedAt = checkedAt.Time

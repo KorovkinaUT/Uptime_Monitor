@@ -67,12 +67,10 @@ LIMIT $2`
 			return nil, fmt.Errorf("scan check: %w", err)
 		}
 		if statusCode.Valid {
-			value := int(statusCode.Int32)
-			check.StatusCode = &value
+			check.StatusCode = new(int(statusCode.Int32))
 		}
 		if checkError.Valid {
-			value := checkError.String
-			check.Error = &value
+			check.Error = new(checkError.String)
 		}
 		checks = append(checks, check)
 	}

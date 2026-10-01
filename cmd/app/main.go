@@ -86,7 +86,7 @@ func run(logger *slog.Logger) error {
 	logger.Info("application started")
 
 	<-ctx.Done()
-	logger.Info("shutdown signal received")
+	logger.Info("starting shutdown")
 
 	shutdownCtx, cancel := context.WithTimeout(
 		context.Background(),
@@ -94,6 +94,7 @@ func run(logger *slog.Logger) error {
 	)
 	defer cancel()
 	// Stop HTTP intake before draining scheduler and worker activity
+
 	var shutdownErr error
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		logger.Error("HTTP server shutdown failed", "error", err)

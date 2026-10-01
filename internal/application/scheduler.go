@@ -19,7 +19,6 @@ type Scheduler struct {
 	done     chan struct{}
 }
 
-// NewScheduler creates a monitor scheduler
 func NewScheduler(
 	monitors MonitorRepository,
 	inFlight InFlightController,
@@ -60,7 +59,6 @@ func (s *Scheduler) Wait(ctx context.Context) error {
 
 // run performs immediate and periodic scheduling
 func (s *Scheduler) run(ctx context.Context) {
-	// Run an immediate scan before starting the periodic ticker
 	defer close(s.done)
 
 	s.schedule(ctx)
@@ -79,7 +77,6 @@ func (s *Scheduler) run(ctx context.Context) {
 
 // schedule enqueues checks for due monitors
 func (s *Scheduler) schedule(ctx context.Context) {
-	// Reserve each monitor before enqueueing its job
 	dueMonitors, err := s.monitors.ListDue(ctx, s.now().UTC())
 	if err != nil {
 		if ctx.Err() == nil {

@@ -60,10 +60,8 @@ func newMonitorResponse(view application.MonitorWithLastCheck) monitorResponse {
 
 	response.Status = string(view.LastCheck.Status)
 	response.LastStatusCode = view.LastCheck.StatusCode
-	latency := view.LastCheck.LatencyMS
-	response.LastLatencyMS = &latency
-	checkedAt := view.LastCheck.CheckedAt
-	response.LastCheckedAt = &checkedAt
+	response.LastLatencyMS = new(view.LastCheck.LatencyMS)
+	response.LastCheckedAt = new(view.LastCheck.CheckedAt)
 	return response
 }
 

@@ -15,7 +15,7 @@ Uptime Monitor — небольшое клиент-серверное прило
 
 ## Стек
 
-- Go, `net/http`, chi и `log/slog`
+- Go 1.26, `net/http`, chi и `log/slog`
 - PostgreSQL и `pgx/v5/pgxpool`
 - HTML, CSS и Vanilla JavaScript
 - Docker Compose и SQL migrations
