@@ -9,7 +9,7 @@ import (
 
 // Config contains application settings loaded from the environment
 type Config struct {
-	HTTPAddr            string        `envconfig:"HTTP_ADDR" default:":8080"`
+	HTTPPort            int           `envconfig:"HTTP_PORT" default:"8080"`
 	DatabaseURL         string        `envconfig:"DATABASE_URL" required:"true"`
 	WorkerCount         int           `envconfig:"WORKER_COUNT" default:"5"`
 	JobQueueCapacity    int           `envconfig:"JOB_QUEUE_CAPACITY" default:"100"`
@@ -36,6 +36,7 @@ func (c Config) validate() error {
 		name  string
 		value int
 	}{
+		{name: "HTTP_PORT", value: c.HTTPPort},
 		{name: "WORKER_COUNT", value: c.WorkerCount},
 		{name: "JOB_QUEUE_CAPACITY", value: c.JobQueueCapacity},
 	}

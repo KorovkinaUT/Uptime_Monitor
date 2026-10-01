@@ -47,7 +47,7 @@ docker compose down
 
 | Переменная | Default | Назначение |
 | --- | --- | --- |
-| `HTTP_ADDR` | `:8080` | Адрес HTTP listener |
+| `HTTP_PORT` | `8080` | Порт HTTP listener |
 | `DATABASE_URL` | — | PostgreSQL connection string для локального запуска |
 | `WORKER_COUNT` | `5` | Количество worker goroutines |
 | `JOB_QUEUE_CAPACITY` | `100` | Максимальный размер очереди jobs |

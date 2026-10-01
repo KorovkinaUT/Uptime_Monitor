@@ -81,7 +81,7 @@ func run(logger *slog.Logger) error {
 	scheduler.Start(ctx)
 
 	// Expose the application services through the HTTP transport
-	server := httpserver.NewServer(cfg.HTTPAddr, httpserver.Dependencies{
+	server := httpserver.NewServer(fmt.Sprintf(":%d", cfg.HTTPPort), httpserver.Dependencies{
 		Monitors: monitorService,
 		Checks:   checkService,
 		WebDir:   "web",
