@@ -6,19 +6,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/ulyana/uptime-monitor/internal/application"
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
 // CheckRepository stores check results in PostgreSQL
 type CheckRepository struct {
-	pool *pgxpool.Pool
+	pool queryPool
 }
 
 var _ application.CheckRepository = (*CheckRepository)(nil)
 
-func NewCheckRepository(pool *pgxpool.Pool) *CheckRepository {
+func NewCheckRepository(pool queryPool) *CheckRepository {
 	return &CheckRepository{pool: pool}
 }
 
