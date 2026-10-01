@@ -65,7 +65,7 @@ func run(logger *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("create worker pool: %w", err)
 	}
-	workerPool.Start(cfg.WorkerCount)
+	workerPool.Start()
 
 	scheduler := application.NewScheduler(
 		monitorRepository,
