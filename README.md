@@ -62,8 +62,6 @@ docker compose down
 
 ## REST API
 
-Base path: `/api/v1`.
-
 | Method | Path | Назначение |
 | --- | --- | --- |
 | `POST` | `/monitors` | Создать monitor |
@@ -79,7 +77,7 @@ Base path: `/api/v1`.
 Пример создания:
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/monitors \
+curl -X POST http://localhost:8080/monitors \
   -H 'Content-Type: application/json' \
   -d '{
     "name": "Example",

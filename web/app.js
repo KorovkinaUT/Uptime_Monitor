@@ -47,7 +47,7 @@ async function request(path, options = {}) {
 
 async function loadMonitors() {
     try {
-        state.monitors = await request("/api/v1/monitors");
+        state.monitors = await request("/monitors");
         renderMonitors();
     } catch (error) {
         showNotice(error.message, true);
@@ -180,7 +180,7 @@ async function saveMonitor(event) {
         enabled: formData.get("enabled") === "on",
     };
 
-    const path = state.editingId ? `/api/v1/monitors/${state.editingId}` : "/api/v1/monitors";
+    const path = state.editingId ? `/monitors/${state.editingId}` : "/monitors";
     const method = state.editingId ? "PUT" : "POST";
     try {
         await request(path, {method, body: JSON.stringify(payload)});
@@ -197,7 +197,7 @@ async function deleteMonitor(monitor) {
         return;
     }
     try {
-        await request(`/api/v1/monitors/${monitor.id}`, {method: "DELETE"});
+        await request(`/monitors/${monitor.id}`, {method: "DELETE"});
         await loadMonitors();
         showNotice("Monitor deleted", false);
     } catch (error) {
@@ -207,7 +207,7 @@ async function deleteMonitor(monitor) {
 
 async function toggleMonitor(monitor) {
     try {
-        await request(`/api/v1/monitors/${monitor.id}`, {
+        await request(`/monitors/${monitor.id}`, {
             method: "PUT",
             body: JSON.stringify({
                 name: monitor.name,
@@ -226,7 +226,7 @@ async function toggleMonitor(monitor) {
 async function checkMonitor(button, monitor) {
     button.disabled = true;
     try {
-        await request(`/api/v1/monitors/${monitor.id}/check`, {method: "POST"});
+        await request(`/monitors/${monitor.id}/check`, {method: "POST"});
         await loadMonitors();
     } catch (error) {
         showNotice(error.message, true);
@@ -245,7 +245,7 @@ async function openHistoryModal(monitor) {
     openModal(historyModal);
 
     try {
-        const checks = await request(`/api/v1/monitors/${monitor.id}/checks?limit=100`);
+        const checks = await request(`/monitors/${monitor.id}/checks?limit=100`);
         renderHistory(checks);
     } catch (error) {
         emptyState.textContent = error.message;

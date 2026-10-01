@@ -29,15 +29,13 @@ func newHandler(dependencies Dependencies) *handler {
 
 // registerRoutes binds API and frontend routes
 func (h *handler) registerRoutes(router chi.Router) {
-	router.Route("/api/v1", func(api chi.Router) {
-		api.Get("/monitors", h.monitorHandler.List)
-		api.Post("/monitors", h.monitorHandler.Create)
-		api.Get("/monitors/{id}", h.monitorHandler.Get)
-		api.Put("/monitors/{id}", h.monitorHandler.Update)
-		api.Delete("/monitors/{id}", h.monitorHandler.Delete)
-		api.Get("/monitors/{id}/checks", h.checkHandler.History)
-		api.Post("/monitors/{id}/check", h.checkHandler.Run)
-	})
+	router.Get("/monitors", h.monitorHandler.List)
+	router.Post("/monitors", h.monitorHandler.Create)
+	router.Get("/monitors/{id}", h.monitorHandler.Get)
+	router.Put("/monitors/{id}", h.monitorHandler.Update)
+	router.Delete("/monitors/{id}", h.monitorHandler.Delete)
+	router.Get("/monitors/{id}/checks", h.checkHandler.History)
+	router.Post("/monitors/{id}/check", h.checkHandler.Run)
 
 	router.Handle("/*", http.FileServer(http.Dir(h.webDir)))
 }
