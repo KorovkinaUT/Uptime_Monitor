@@ -18,8 +18,8 @@ func TestMonitorServiceCreateUsesSavedMonitor(t *testing.T) {
 		TimeoutSeconds:  5,
 		Enabled:         true,
 	}
-	repository := &fakeMonitorRepository{created: saved}
-	service := NewMonitorService(repository, &fakeCheckRepository{})
+	repository := &mockMonitorRepository{created: saved}
+	service := NewMonitorService(repository, &mockCheckRepository{})
 	input := saved
 	input.ID = uuid.Nil
 
@@ -49,8 +49,8 @@ func TestMonitorServiceGetIncludesLatestCheck(t *testing.T) {
 	//arrange
 	monitorID := uuid.New()
 	latest := domain.Check{ID: uuid.New(), MonitorID: monitorID, Status: domain.CheckStatusUp}
-	repository := &fakeMonitorRepository{monitor: domain.Monitor{ID: monitorID}}
-	checks := &fakeCheckRepository{history: []domain.Check{latest}}
+	repository := &mockMonitorRepository{monitor: domain.Monitor{ID: monitorID}}
+	checks := &mockCheckRepository{history: []domain.Check{latest}}
 	service := NewMonitorService(repository, checks)
 
 	//act

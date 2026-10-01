@@ -8,8 +8,8 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
-// fakeMonitorRepository stores monitor data for service tests
-type fakeMonitorRepository struct {
+// mockMonitorRepository stores monitor data for service tests
+type mockMonitorRepository struct {
 	created     domain.Monitor
 	createErr   error
 	createCalls int
@@ -25,7 +25,7 @@ type fakeMonitorRepository struct {
 	dueErr      error
 }
 
-func (f *fakeMonitorRepository) Create(context.Context, domain.Monitor) (domain.Monitor, error) {
+func (f *mockMonitorRepository) Create(context.Context, domain.Monitor) (domain.Monitor, error) {
 	f.createCalls++
 	if f.createErr != nil {
 		return domain.Monitor{}, f.createErr
@@ -33,7 +33,7 @@ func (f *fakeMonitorRepository) Create(context.Context, domain.Monitor) (domain.
 	return f.created, nil
 }
 
-func (f *fakeMonitorRepository) GetByID(context.Context, uuid.UUID) (domain.Monitor, error) {
+func (f *mockMonitorRepository) GetByID(context.Context, uuid.UUID) (domain.Monitor, error) {
 	f.getCalls++
 	if f.getErr != nil {
 		return domain.Monitor{}, f.getErr
@@ -41,38 +41,38 @@ func (f *fakeMonitorRepository) GetByID(context.Context, uuid.UUID) (domain.Moni
 	return f.monitor, nil
 }
 
-func (f *fakeMonitorRepository) ListWithLastCheck(context.Context) ([]MonitorWithLastCheck, error) {
+func (f *mockMonitorRepository) ListWithLastCheck(context.Context) ([]MonitorWithLastCheck, error) {
 	if f.listErr != nil {
 		return nil, f.listErr
 	}
 	return f.list, nil
 }
 
-func (f *fakeMonitorRepository) Update(context.Context, domain.Monitor) error {
+func (f *mockMonitorRepository) Update(context.Context, domain.Monitor) error {
 	f.updateCalls++
 	return f.updateErr
 }
 
-func (f *fakeMonitorRepository) Delete(context.Context, uuid.UUID) error {
+func (f *mockMonitorRepository) Delete(context.Context, uuid.UUID) error {
 	return f.deleteErr
 }
 
-func (f *fakeMonitorRepository) ListDue(context.Context, time.Time) ([]domain.Monitor, error) {
+func (f *mockMonitorRepository) ListDue(context.Context, time.Time) ([]domain.Monitor, error) {
 	if f.dueErr != nil {
 		return nil, f.dueErr
 	}
 	return f.due, nil
 }
 
-// fakeCheckRepository stores check data for service tests
-type fakeCheckRepository struct {
+// mockCheckRepository stores check data for service tests
+type mockCheckRepository struct {
 	created   domain.Check
 	createErr error
 	history   []domain.Check
 	listErr   error
 }
 
-func (f *fakeCheckRepository) Create(_ context.Context, check domain.Check) error {
+func (f *mockCheckRepository) Create(_ context.Context, check domain.Check) error {
 	if f.createErr != nil {
 		return f.createErr
 	}
@@ -80,20 +80,20 @@ func (f *fakeCheckRepository) Create(_ context.Context, check domain.Check) erro
 	return nil
 }
 
-func (f *fakeCheckRepository) ListByMonitorID(context.Context, uuid.UUID, int) ([]domain.Check, error) {
+func (f *mockCheckRepository) ListByMonitorID(context.Context, uuid.UUID, int) ([]domain.Check, error) {
 	if f.listErr != nil {
 		return nil, f.listErr
 	}
 	return f.history, nil
 }
 
-// fakeChecker returns a configured check result
-type fakeChecker struct {
+// mockChecker returns a configured check result
+type mockChecker struct {
 	result applicationCheckResult
 	err    error
 }
 
-// applicationCheckResult describes a fake check result
+// applicationCheckResult describes a mock check result
 type applicationCheckResult struct {
 	status     domain.CheckStatus
 	statusCode *int
@@ -101,7 +101,7 @@ type applicationCheckResult struct {
 	err        *string
 }
 
-func (f *fakeChecker) Check(context.Context, domain.Monitor) (CheckResult, error) {
+func (f *mockChecker) Check(context.Context, domain.Monitor) (CheckResult, error) {
 	return CheckResult{
 		Status:     f.result.status,
 		StatusCode: f.result.statusCode,
@@ -110,18 +110,18 @@ func (f *fakeChecker) Check(context.Context, domain.Monitor) (CheckResult, error
 	}, f.err
 }
 
-// fakeInFlightController controls concurrent check tests
-type fakeInFlightController struct {
+// mockInFlightController controls concurrent check tests
+type mockInFlightController struct {
 	allowed       bool
 	tryStartCalls int
 	releaseCalls  int
 }
 
-func (f *fakeInFlightController) TryStart(uuid.UUID) bool {
+func (f *mockInFlightController) TryStart(uuid.UUID) bool {
 	f.tryStartCalls++
 	return f.allowed
 }
 
-func (f *fakeInFlightController) Release(uuid.UUID) {
+func (f *mockInFlightController) Release(uuid.UUID) {
 	f.releaseCalls++
 }

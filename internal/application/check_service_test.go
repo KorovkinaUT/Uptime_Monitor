@@ -16,10 +16,10 @@ func TestCheckServiceCheckPersistsResult(t *testing.T) {
 	statusCode := 200
 	checkedAt := time.Date(2026, time.January, 1, 12, 0, 0, 0, time.UTC)
 	monitor := domain.Monitor{ID: monitorID, URL: "https://example.com", TimeoutSeconds: 5, IntervalSeconds: 30}
-	monitors := &fakeMonitorRepository{monitor: monitor}
-	checks := &fakeCheckRepository{}
-	inFlight := &fakeInFlightController{allowed: true}
-	checker := &fakeChecker{result: applicationCheckResult{status: domain.CheckStatusUp, statusCode: &statusCode, latencyMS: 42}}
+	monitors := &mockMonitorRepository{monitor: monitor}
+	checks := &mockCheckRepository{}
+	inFlight := &mockInFlightController{allowed: true}
+	checker := &mockChecker{result: applicationCheckResult{status: domain.CheckStatusUp, statusCode: &statusCode, latencyMS: 42}}
 	service := NewCheckService(monitors, checks, checker, inFlight, nil)
 	service.now = func() time.Time { return checkedAt }
 
@@ -50,8 +50,8 @@ func TestCheckServiceCheckPersistsResult(t *testing.T) {
 
 func TestCheckServiceRejectsConcurrentCheck(t *testing.T) {
 	//arrange
-	inFlight := &fakeInFlightController{allowed: false}
-	service := NewCheckService(&fakeMonitorRepository{}, &fakeCheckRepository{}, &fakeChecker{}, inFlight, nil)
+	inFlight := &mockInFlightController{allowed: false}
+	service := NewCheckService(&mockMonitorRepository{}, &mockCheckRepository{}, &mockChecker{}, inFlight, nil)
 
 	//act
 	_, err := service.Check(context.Background(), uuid.New())
