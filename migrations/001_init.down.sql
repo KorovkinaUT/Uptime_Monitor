@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS checks;
+DROP TABLE IF EXISTS monitors;
