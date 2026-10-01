@@ -10,7 +10,7 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
-      timeout: 5s
+      timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-5s}
       retries: 10
 
   migrate:
@@ -37,6 +37,8 @@ services:
       WORKER_COUNT: ${WORKER_COUNT:-5}
       JOB_QUEUE_CAPACITY: ${JOB_QUEUE_CAPACITY:-100}
       SCHEDULER_INTERVAL_SECONDS: ${SCHEDULER_INTERVAL_SECONDS:-1}
+      DATABASE_PING_TIMEOUT_SECONDS: ${DATABASE_PING_TIMEOUT_SECONDS:-5}
+      SHUTDOWN_TIMEOUT_SECONDS: ${SHUTDOWN_TIMEOUT_SECONDS:-10}
     ports:
       - "${APP_PORT:-8080}:8080"
 

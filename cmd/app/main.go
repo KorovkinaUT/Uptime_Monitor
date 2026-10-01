@@ -33,7 +33,11 @@ func run(logger *slog.Logger) error {
 	appCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	databasePool, err := postgres.NewPool(appCtx, cfg.DatabaseURL)
+	databasePool, err := postgres.NewPool(
+		appCtx,
+		cfg.DatabaseURL,
+		time.Duration(cfg.DatabasePingTimeoutSeconds)*time.Second,
+	)
 	if err != nil {
 		return err
 	}
@@ -82,7 +86,10 @@ func run(logger *slog.Logger) error {
 	<-appCtx.Done()
 	logger.Info("shutdown signal received")
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(cfg.ShutdownTimeoutSeconds)*time.Second,
+	)
 	defer cancel()
 	// Stop HTTP intake before draining scheduler and worker activity
 	var shutdownErr error
