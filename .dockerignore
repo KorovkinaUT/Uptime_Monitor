@@ -1,7 +1,6 @@
 .git
 .env
 .gitignore
-*.log
 *.test
 coverage.out
 Отчёт.md

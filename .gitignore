@@ -1,4 +1,3 @@
-*.log
 *.test
 coverage.out
 uptime-monitor
