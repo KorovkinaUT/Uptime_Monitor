@@ -10,20 +10,24 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// CheckService exposes check operations to HTTP handlers
 type CheckService interface {
 	Check(ctx context.Context, monitorID uuid.UUID) (domain.Check, error)
 	ListHistory(ctx context.Context, monitorID uuid.UUID, limit int) ([]domain.Check, error)
 }
 
+// CheckHandler handles check API requests
 type CheckHandler struct {
 	service CheckService
 	logger  *slog.Logger
 }
 
+// NewCheckHandler creates a check request handler
 func NewCheckHandler(service CheckService, logger *slog.Logger) *CheckHandler {
 	return &CheckHandler{service: service, logger: logger}
 }
 
+// Run starts a manual monitor check
 func (h *CheckHandler) Run(writer http.ResponseWriter, request *http.Request) {
 	id, err := parseMonitorID(request)
 	if err != nil {
@@ -39,6 +43,7 @@ func (h *CheckHandler) Run(writer http.ResponseWriter, request *http.Request) {
 	writeJSON(writer, http.StatusOK, newCheckResponse(check))
 }
 
+// History returns recent checks for a monitor
 func (h *CheckHandler) History(writer http.ResponseWriter, request *http.Request) {
 	id, err := parseMonitorID(request)
 	if err != nil {
@@ -65,6 +70,7 @@ func (h *CheckHandler) History(writer http.ResponseWriter, request *http.Request
 	writeJSON(writer, http.StatusOK, response)
 }
 
+// parseLimit validates the requested history size
 func parseLimit(request *http.Request) (int, error) {
 	value := request.URL.Query().Get("limit")
 	if value == "" {

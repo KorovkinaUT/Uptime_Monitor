@@ -20,6 +20,7 @@ func NewChecker() *Checker {
 	return &Checker{client: client}
 }
 
+// Check performs an HTTP request and maps its result to a check outcome
 func (c *Checker) Check(ctx context.Context, monitor domain.Monitor) (application.CheckResult, error) {
 	// Apply the timeout configured for this monitor only
 	requestCtx, cancel := context.WithTimeout(ctx, time.Duration(monitor.TimeoutSeconds)*time.Second)

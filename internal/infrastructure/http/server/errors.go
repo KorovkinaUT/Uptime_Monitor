@@ -11,6 +11,7 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// decodeJSON parses one strict JSON request body
 func decodeJSON(request *http.Request, destination any) error {
 	// Reject unknown fields and trailing JSON values
 	decoder := json.NewDecoder(request.Body)
@@ -26,6 +27,7 @@ func decodeJSON(request *http.Request, destination any) error {
 	return nil
 }
 
+// writeJSON encodes a JSON response with its HTTP status
 func writeJSON(writer http.ResponseWriter, status int, value any) {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(status)
@@ -34,6 +36,7 @@ func writeJSON(writer http.ResponseWriter, status int, value any) {
 	}
 }
 
+// writeError maps an application error to an API response
 func writeError(writer http.ResponseWriter, logger *slog.Logger, err error) {
 	status := http.StatusInternalServerError
 	message := "internal server error"
@@ -54,6 +57,7 @@ func writeError(writer http.ResponseWriter, logger *slog.Logger, err error) {
 	writeJSON(writer, status, errorResponse{Error: message})
 }
 
+// writeBadRequest writes a malformed request response
 func writeBadRequest(writer http.ResponseWriter, err error) {
 	writeJSON(writer, http.StatusBadRequest, errorResponse{Error: err.Error()})
 }

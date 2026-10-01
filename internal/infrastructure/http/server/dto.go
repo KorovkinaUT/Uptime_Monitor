@@ -8,6 +8,7 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// monitorRequest contains monitor fields from an API request
 type monitorRequest struct {
 	Name            string `json:"name"`
 	URL             string `json:"url"`
@@ -16,6 +17,7 @@ type monitorRequest struct {
 	Enabled         bool   `json:"enabled"`
 }
 
+// monitor converts the request into a domain monitor
 func (r monitorRequest) monitor(id uuid.UUID) domain.Monitor {
 	return domain.Monitor{
 		ID:              id,
@@ -27,6 +29,7 @@ func (r monitorRequest) monitor(id uuid.UUID) domain.Monitor {
 	}
 }
 
+// monitorResponse contains a monitor and its latest status
 type monitorResponse struct {
 	ID              uuid.UUID  `json:"id"`
 	Name            string     `json:"name"`
@@ -40,6 +43,7 @@ type monitorResponse struct {
 	LastCheckedAt   *time.Time `json:"last_checked_at"`
 }
 
+// newMonitorResponse converts an application view to an API response
 func newMonitorResponse(view application.MonitorWithLastCheck) monitorResponse {
 	response := monitorResponse{
 		ID:              view.Monitor.ID,
@@ -63,6 +67,7 @@ func newMonitorResponse(view application.MonitorWithLastCheck) monitorResponse {
 	return response
 }
 
+// checkResponse contains a check result for the API
 type checkResponse struct {
 	ID         uuid.UUID `json:"id"`
 	MonitorID  uuid.UUID `json:"monitor_id"`
@@ -73,6 +78,7 @@ type checkResponse struct {
 	CheckedAt  time.Time `json:"checked_at"`
 }
 
+// newCheckResponse converts a domain check to an API response
 func newCheckResponse(check domain.Check) checkResponse {
 	return checkResponse{
 		ID:         check.ID,
@@ -85,6 +91,7 @@ func newCheckResponse(check domain.Check) checkResponse {
 	}
 }
 
+// errorResponse contains a public API error message
 type errorResponse struct {
 	Error string `json:"error"`
 }

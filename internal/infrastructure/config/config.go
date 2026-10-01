@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+// Config contains application settings loaded from the environment
 type Config struct {
 	HTTPAddr            string
 	DatabaseURL         string
@@ -16,6 +17,7 @@ type Config struct {
 	ShutdownTimeout     int
 }
 
+// Load reads and validates application settings
 func Load() (Config, error) {
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
@@ -54,6 +56,7 @@ func Load() (Config, error) {
 	}, nil
 }
 
+// envOrDefault returns an environment value or fallback
 func envOrDefault(name, fallback string) string {
 	value := os.Getenv(name)
 	if value == "" {
@@ -62,6 +65,7 @@ func envOrDefault(name, fallback string) string {
 	return value
 }
 
+// positiveIntEnv reads a positive integer setting
 func positiveIntEnv(name string, fallback int) (int, error) {
 	value := os.Getenv(name)
 	if value == "" {

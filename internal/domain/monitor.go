@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Monitor contains the configuration for one monitored URL
 type Monitor struct {
 	ID              uuid.UUID
 	Name            string
@@ -18,6 +19,7 @@ type Monitor struct {
 	Enabled         bool
 }
 
+// Validate checks monitor configuration before persistence
 func (m Monitor) Validate() error {
 	// Validate monitor fields before persistence
 	if strings.TrimSpace(m.Name) == "" {

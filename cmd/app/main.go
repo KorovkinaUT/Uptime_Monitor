@@ -16,6 +16,7 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/infrastructure/postgres"
 )
 
+// main starts the uptime monitor application
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	if err := run(logger); err != nil {
@@ -23,6 +24,7 @@ func main() {
 	}
 }
 
+// run builds dependencies and manages the application lifecycle
 func run(logger *slog.Logger) error {
 	// Build all application dependencies
 	cfg, err := config.Load()

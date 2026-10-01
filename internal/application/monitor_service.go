@@ -7,15 +7,18 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// MonitorService manages monitor lifecycle operations
 type MonitorService struct {
 	monitors MonitorRepository
 	checks   CheckRepository
 }
 
+// NewMonitorService creates a monitor service
 func NewMonitorService(monitors MonitorRepository, checks CheckRepository) *MonitorService {
 	return &MonitorService{monitors: monitors, checks: checks}
 }
 
+// Create validates and persists a monitor
 func (s *MonitorService) Create(ctx context.Context, monitor domain.Monitor) (MonitorWithLastCheck, error) {
 	if err := monitor.Validate(); err != nil {
 		return MonitorWithLastCheck{}, err
@@ -31,6 +34,7 @@ func (s *MonitorService) Create(ctx context.Context, monitor domain.Monitor) (Mo
 	return s.Get(ctx, monitor.ID)
 }
 
+// Get returns a monitor with its latest check
 func (s *MonitorService) Get(ctx context.Context, id uuid.UUID) (MonitorWithLastCheck, error) {
 	monitor, err := s.monitors.GetByID(ctx, id)
 	if err != nil {
@@ -50,10 +54,12 @@ func (s *MonitorService) Get(ctx context.Context, id uuid.UUID) (MonitorWithLast
 	return view, nil
 }
 
+// List returns all monitors with their latest checks
 func (s *MonitorService) List(ctx context.Context) ([]MonitorWithLastCheck, error) {
 	return s.monitors.ListWithLastCheck(ctx)
 }
 
+// Update validates and changes a monitor
 func (s *MonitorService) Update(ctx context.Context, monitor domain.Monitor) (MonitorWithLastCheck, error) {
 	if err := monitor.Validate(); err != nil {
 		return MonitorWithLastCheck{}, err
@@ -66,6 +72,7 @@ func (s *MonitorService) Update(ctx context.Context, monitor domain.Monitor) (Mo
 	return s.Get(ctx, monitor.ID)
 }
 
+// Delete removes a monitor and its checks
 func (s *MonitorService) Delete(ctx context.Context, id uuid.UUID) error {
 	return s.monitors.Delete(ctx, id)
 }

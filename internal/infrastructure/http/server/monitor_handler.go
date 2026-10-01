@@ -10,6 +10,7 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// MonitorService exposes monitor operations to HTTP handlers
 type MonitorService interface {
 	Create(ctx context.Context, monitor domain.Monitor) (application.MonitorWithLastCheck, error)
 	Get(ctx context.Context, id uuid.UUID) (application.MonitorWithLastCheck, error)
@@ -18,15 +19,18 @@ type MonitorService interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
+// MonitorHandler handles monitor API requests
 type MonitorHandler struct {
 	service MonitorService
 	logger  *slog.Logger
 }
 
+// NewMonitorHandler creates a monitor request handler
 func NewMonitorHandler(service MonitorService, logger *slog.Logger) *MonitorHandler {
 	return &MonitorHandler{service: service, logger: logger}
 }
 
+// List returns all monitors
 func (h *MonitorHandler) List(writer http.ResponseWriter, request *http.Request) {
 	monitors, err := h.service.List(request.Context())
 	if err != nil {
@@ -41,6 +45,7 @@ func (h *MonitorHandler) List(writer http.ResponseWriter, request *http.Request)
 	writeJSON(writer, http.StatusOK, response)
 }
 
+// Create adds a new monitor
 func (h *MonitorHandler) Create(writer http.ResponseWriter, request *http.Request) {
 	var input monitorRequest
 	if err := decodeJSON(request, &input); err != nil {
@@ -56,6 +61,7 @@ func (h *MonitorHandler) Create(writer http.ResponseWriter, request *http.Reques
 	writeJSON(writer, http.StatusCreated, newMonitorResponse(monitor))
 }
 
+// Get returns one monitor
 func (h *MonitorHandler) Get(writer http.ResponseWriter, request *http.Request) {
 	id, err := parseMonitorID(request)
 	if err != nil {
@@ -71,6 +77,7 @@ func (h *MonitorHandler) Get(writer http.ResponseWriter, request *http.Request) 
 	writeJSON(writer, http.StatusOK, newMonitorResponse(monitor))
 }
 
+// Update changes an existing monitor
 func (h *MonitorHandler) Update(writer http.ResponseWriter, request *http.Request) {
 	id, err := parseMonitorID(request)
 	if err != nil {
@@ -92,6 +99,7 @@ func (h *MonitorHandler) Update(writer http.ResponseWriter, request *http.Reques
 	writeJSON(writer, http.StatusOK, newMonitorResponse(monitor))
 }
 
+// Delete removes a monitor
 func (h *MonitorHandler) Delete(writer http.ResponseWriter, request *http.Request) {
 	id, err := parseMonitorID(request)
 	if err != nil {
@@ -106,6 +114,7 @@ func (h *MonitorHandler) Delete(writer http.ResponseWriter, request *http.Reques
 	writer.WriteHeader(http.StatusNoContent)
 }
 
+// parseMonitorID reads and validates the monitor path parameter
 func parseMonitorID(request *http.Request) (uuid.UUID, error) {
 	id, err := uuid.Parse(requestPathParam(request, "id"))
 	if err != nil {

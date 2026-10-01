@@ -10,14 +10,17 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// CheckRepository stores check results in PostgreSQL
 type CheckRepository struct {
 	pool *pgxpool.Pool
 }
 
+// NewCheckRepository creates a PostgreSQL check repository
 func NewCheckRepository(pool *pgxpool.Pool) *CheckRepository {
 	return &CheckRepository{pool: pool}
 }
 
+// Create saves one check result
 func (r *CheckRepository) Create(ctx context.Context, check domain.Check) error {
 	const query = `
 INSERT INTO checks (id, monitor_id, status, status_code, latency_ms, error, checked_at)
@@ -30,6 +33,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)`
 	return nil
 }
 
+// ListByMonitorID returns recent checks for a monitor
 func (r *CheckRepository) ListByMonitorID(ctx context.Context, monitorID uuid.UUID, limit int) ([]domain.Check, error) {
 	const query = `
 SELECT id, monitor_id, status, status_code, latency_ms, error, checked_at

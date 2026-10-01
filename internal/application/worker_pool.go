@@ -9,8 +9,10 @@ import (
 
 var ErrWorkerPoolStopped = errors.New("worker pool stopped")
 
+// JobHandler processes one queued check job
 type JobHandler func(ctx context.Context, job CheckJob) error
 
+// WorkerPool processes check jobs with bounded concurrency
 type WorkerPool struct {
 	jobs      chan CheckJob
 	handler   JobHandler
@@ -23,6 +25,7 @@ type WorkerPool struct {
 	stopped   bool
 }
 
+// NewWorkerPool creates a bounded worker pool
 func NewWorkerPool(workerCount, queueCapacity int, handler JobHandler, logger *slog.Logger) (*WorkerPool, error) {
 	if workerCount < 1 || queueCapacity < 1 {
 		return nil, errors.New("worker count and queue capacity must be positive")
@@ -45,6 +48,7 @@ func NewWorkerPool(workerCount, queueCapacity int, handler JobHandler, logger *s
 	}, nil
 }
 
+// Start launches the configured worker goroutines
 func (p *WorkerPool) Start(workerCount int) {
 	for i := 0; i < workerCount; i++ {
 		p.wg.Add(1)
@@ -53,6 +57,7 @@ func (p *WorkerPool) Start(workerCount int) {
 	p.logger.Info("worker pool started", "workers", workerCount, "queue_capacity", cap(p.jobs))
 }
 
+// Enqueue adds a job while the pool accepts new work
 func (p *WorkerPool) Enqueue(ctx context.Context, job CheckJob) error {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -71,6 +76,7 @@ func (p *WorkerPool) Enqueue(ctx context.Context, job CheckJob) error {
 	}
 }
 
+// Stop closes intake and waits for workers to finish
 func (p *WorkerPool) Stop(ctx context.Context) error {
 	// Close intake first so workers can drain the bounded queue
 	p.mu.Lock()
@@ -98,6 +104,7 @@ func (p *WorkerPool) Stop(ctx context.Context) error {
 	}
 }
 
+// worker processes jobs from the queue
 func (p *WorkerPool) worker() {
 	// Keep one goroutine per configured worker slot
 	defer p.wg.Done()

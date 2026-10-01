@@ -6,15 +6,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// InFlightRegistry prevents concurrent checks for the same monitor
 type InFlightRegistry struct {
 	mu     sync.Mutex
 	active map[uuid.UUID]struct{}
 }
 
+// NewInFlightRegistry creates an empty in-flight registry
 func NewInFlightRegistry() *InFlightRegistry {
 	return &InFlightRegistry{active: make(map[uuid.UUID]struct{})}
 }
 
+// TryStart reserves a monitor for a new check
 func (r *InFlightRegistry) TryStart(id uuid.UUID) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -27,6 +30,7 @@ func (r *InFlightRegistry) TryStart(id uuid.UUID) bool {
 	return true
 }
 
+// Release removes a monitor reservation
 func (r *InFlightRegistry) Release(id uuid.UUID) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

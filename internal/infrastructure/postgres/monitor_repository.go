@@ -14,14 +14,17 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// MonitorRepository stores monitors in PostgreSQL
 type MonitorRepository struct {
 	pool *pgxpool.Pool
 }
 
+// NewMonitorRepository creates a PostgreSQL monitor repository
 func NewMonitorRepository(pool *pgxpool.Pool) *MonitorRepository {
 	return &MonitorRepository{pool: pool}
 }
 
+// Create saves one monitor
 func (r *MonitorRepository) Create(ctx context.Context, monitor domain.Monitor) error {
 	const query = `
 INSERT INTO monitors (id, name, url, interval_seconds, timeout_seconds, enabled)
@@ -34,6 +37,7 @@ VALUES ($1, $2, $3, $4, $5, $6)`
 	return nil
 }
 
+// GetByID returns a monitor by identifier
 func (r *MonitorRepository) GetByID(ctx context.Context, id uuid.UUID) (domain.Monitor, error) {
 	const query = `
 SELECT id, name, url, interval_seconds, timeout_seconds, enabled
@@ -58,6 +62,7 @@ WHERE id = $1`
 	return monitor, nil
 }
 
+// ListWithLastCheck returns monitors with their latest checks
 func (r *MonitorRepository) ListWithLastCheck(ctx context.Context) ([]application.MonitorWithLastCheck, error) {
 	// Fetch the latest check in one query to avoid N+1 reads
 	const query = `
@@ -146,6 +151,7 @@ ORDER BY m.name, m.id`
 	return monitors, nil
 }
 
+// Update changes an existing monitor
 func (r *MonitorRepository) Update(ctx context.Context, monitor domain.Monitor) error {
 	const query = `
 UPDATE monitors
@@ -162,6 +168,7 @@ WHERE id = $1`
 	return nil
 }
 
+// Delete removes a monitor
 func (r *MonitorRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	const query = `DELETE FROM monitors WHERE id = $1`
 
@@ -175,6 +182,7 @@ func (r *MonitorRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+// ListDue returns enabled monitors whose checks are overdue
 func (r *MonitorRepository) ListDue(ctx context.Context, now time.Time) ([]domain.Monitor, error) {
 	// Select only enabled monitors whose latest check is overdue
 	const query = `

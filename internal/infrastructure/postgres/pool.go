@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// NewPool creates and verifies a PostgreSQL connection pool
 func NewPool(ctx context.Context, databaseURL string, pingTimeout time.Duration) (*pgxpool.Pool, error) {
 	poolConfig, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// logDownCheck records a failed monitor check
 func logDownCheck(logger *slog.Logger, monitorID uuid.UUID, check domain.Check) {
 	var statusCode any
 	if check.StatusCode != nil {

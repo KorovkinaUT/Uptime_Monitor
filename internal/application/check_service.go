@@ -10,6 +10,7 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
+// CheckService coordinates monitor checks and result persistence
 type CheckService struct {
 	monitors MonitorRepository
 	checks   CheckRepository
@@ -19,6 +20,7 @@ type CheckService struct {
 	now      func() time.Time
 }
 
+// NewCheckService creates a check service
 func NewCheckService(
 	monitors MonitorRepository,
 	checks CheckRepository,
@@ -40,6 +42,7 @@ func NewCheckService(
 	}
 }
 
+// Check starts a check when the monitor is not already running
 func (s *CheckService) Check(ctx context.Context, monitorID uuid.UUID) (domain.Check, error) {
 	if !s.inFlight.TryStart(monitorID) {
 		return domain.Check{}, domain.ErrCheckAlreadyRunning
@@ -48,6 +51,7 @@ func (s *CheckService) Check(ctx context.Context, monitorID uuid.UUID) (domain.C
 	return s.RunClaimed(ctx, monitorID)
 }
 
+// RunClaimed executes a check for a reserved monitor
 func (s *CheckService) RunClaimed(ctx context.Context, monitorID uuid.UUID) (domain.Check, error) {
 	// Run a check for a monitor already reserved by scheduler or manual request
 	defer s.inFlight.Release(monitorID)
@@ -82,6 +86,7 @@ func (s *CheckService) RunClaimed(ctx context.Context, monitorID uuid.UUID) (dom
 	return check, nil
 }
 
+// ListHistory returns recent checks for a monitor
 func (s *CheckService) ListHistory(ctx context.Context, monitorID uuid.UUID, limit int) ([]domain.Check, error) {
 	if limit < 1 || limit > 1000 {
 		return nil, domain.ErrInvalidLimit
