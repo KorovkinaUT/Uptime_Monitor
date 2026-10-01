@@ -51,7 +51,7 @@ func (fakeCheckService) ListHistory(context.Context, uuid.UUID, int) ([]domain.C
 func TestCreateInvalidJSON(t *testing.T) {
 	//arrange
 	service := &fakeMonitorService{}
-	router := NewRouter(service, fakeCheckService{}, t.TempDir(), nil)
+	router := NewHandler(Dependencies{Monitors: service, Checks: fakeCheckService{}, WebDir: t.TempDir()})
 	request := httptest.NewRequest(http.MethodPost, "/api/v1/monitors", strings.NewReader(`{"name":`))
 	recorder := httptest.NewRecorder()
 
@@ -66,7 +66,7 @@ func TestCreateInvalidJSON(t *testing.T) {
 
 func TestGetInvalidUUID(t *testing.T) {
 	//arrange
-	router := NewRouter(&fakeMonitorService{}, fakeCheckService{}, t.TempDir(), nil)
+	router := NewHandler(Dependencies{Monitors: &fakeMonitorService{}, Checks: fakeCheckService{}, WebDir: t.TempDir()})
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/monitors/not-a-uuid", nil)
 	recorder := httptest.NewRecorder()
 
@@ -82,7 +82,7 @@ func TestGetInvalidUUID(t *testing.T) {
 func TestGetNotFound(t *testing.T) {
 	//arrange
 	service := &fakeMonitorService{getErr: domain.ErrMonitorNotFound}
-	router := NewRouter(service, fakeCheckService{}, t.TempDir(), nil)
+	router := NewHandler(Dependencies{Monitors: service, Checks: fakeCheckService{}, WebDir: t.TempDir()})
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/monitors"+uuid.NewString()+"/", nil)
 	recorder := httptest.NewRecorder()
 
@@ -108,7 +108,7 @@ func TestCreateValidRequest(t *testing.T) {
 			Enabled:         true,
 		},
 	}}
-	router := NewRouter(service, fakeCheckService{}, t.TempDir(), nil)
+	router := NewHandler(Dependencies{Monitors: service, Checks: fakeCheckService{}, WebDir: t.TempDir()})
 	body := `{"name":"My API","url":"https://example.com/health","interval_seconds":30,"timeout_seconds":5,"enabled":true}`
 	request := httptest.NewRequest(http.MethodPost, "/api/v1/monitors", strings.NewReader(body))
 	recorder := httptest.NewRecorder()

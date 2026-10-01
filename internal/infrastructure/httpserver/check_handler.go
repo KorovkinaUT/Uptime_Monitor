@@ -10,17 +10,17 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
-type checkUseCase interface {
+type CheckService interface {
 	Check(ctx context.Context, monitorID uuid.UUID) (domain.Check, error)
 	ListHistory(ctx context.Context, monitorID uuid.UUID, limit int) ([]domain.Check, error)
 }
 
 type CheckHandler struct {
-	service checkUseCase
+	service CheckService
 	logger  *slog.Logger
 }
 
-func NewCheckHandler(service checkUseCase, logger *slog.Logger) *CheckHandler {
+func NewCheckHandler(service CheckService, logger *slog.Logger) *CheckHandler {
 	return &CheckHandler{service: service, logger: logger}
 }
 

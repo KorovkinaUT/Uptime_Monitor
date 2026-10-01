@@ -10,7 +10,7 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
-type monitorUseCase interface {
+type MonitorService interface {
 	Create(ctx context.Context, monitor domain.Monitor) (application.MonitorWithLastCheck, error)
 	Get(ctx context.Context, id uuid.UUID) (application.MonitorWithLastCheck, error)
 	List(ctx context.Context) ([]application.MonitorWithLastCheck, error)
@@ -19,11 +19,11 @@ type monitorUseCase interface {
 }
 
 type MonitorHandler struct {
-	service monitorUseCase
+	service MonitorService
 	logger  *slog.Logger
 }
 
-func NewMonitorHandler(service monitorUseCase, logger *slog.Logger) *MonitorHandler {
+func NewMonitorHandler(service MonitorService, logger *slog.Logger) *MonitorHandler {
 	return &MonitorHandler{service: service, logger: logger}
 }
 

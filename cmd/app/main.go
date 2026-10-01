@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,7 +24,7 @@ func main() {
 }
 
 func run(logger *slog.Logger) error {
-	// Build all application dependencies in the composition root
+	// Build all application dependencies
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
@@ -72,45 +70,35 @@ func run(logger *slog.Logger) error {
 	)
 	scheduler.Start(appCtx)
 
-	server := &http.Server{
-		Addr:    cfg.HTTPAddr,
-		Handler: httpserver.NewRouter(monitorService, checkService, "web", logger),
-	}
-	serverErrors := make(chan error, 1)
-	go func() {
-		serverErrors <- server.ListenAndServe()
-	}()
-	logger.Info("application started", "address", cfg.HTTPAddr)
+	server := httpserver.NewServer(cfg.HTTPAddr, httpserver.Dependencies{
+		Monitors: monitorService,
+		Checks:   checkService,
+		WebDir:   "web",
+		Logger:   logger,
+	})
+	server.Start(logger, stop)
+	logger.Info("application started")
 
-	var serverErr error
-	select {
-	case <-appCtx.Done():
-		logger.Info("shutdown signal received")
-	case err := <-serverErrors:
-		if !errors.Is(err, http.ErrServerClosed) {
-			serverErr = err
-		}
-		stop()
-	}
+	<-appCtx.Done()
+	logger.Info("shutdown signal received")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	// Stop HTTP intake before draining scheduler and worker activity
+	var shutdownErr error
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		logger.Error("HTTP server shutdown failed", "error", err)
-		if serverErr == nil {
-			serverErr = err
-		}
+		shutdownErr = err
 	}
 
 	scheduler.Wait()
 	if err := workerPool.Stop(shutdownCtx); err != nil {
 		logger.Error("worker pool shutdown failed", "error", err)
-		if serverErr == nil {
-			serverErr = err
+		if shutdownErr == nil {
+			shutdownErr = err
 		}
 	}
 
 	logger.Info("application shutdown complete")
-	return serverErr
+	return shutdownErr
 }

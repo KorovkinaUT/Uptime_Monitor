@@ -7,27 +7,37 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(monitors monitorUseCase, checks checkUseCase, webDir string, logger *slog.Logger) http.Handler {
+type handler struct {
+	monitorHandler *MonitorHandler
+	checkHandler   *CheckHandler
+	webDir         string
+}
+
+func newHandler(dependencies Dependencies) *handler {
+	logger := dependencies.Logger
 	if logger == nil {
 		logger = slog.Default()
 	}
 
-	monitorHandler := NewMonitorHandler(monitors, logger)
-	checkHandler := NewCheckHandler(checks, logger)
-	router := chi.NewRouter()
+	return &handler{
+		monitorHandler: NewMonitorHandler(dependencies.Monitors, logger),
+		checkHandler:   NewCheckHandler(dependencies.Checks, logger),
+		webDir:         dependencies.WebDir,
+	}
+}
+
+func (h *handler) registerRoutes(router chi.Router) {
 	router.Route("/api/v1", func(api chi.Router) {
-		api.Get("/monitors", monitorHandler.List)
-		api.Post("/monitors", monitorHandler.Create)
-		api.Get("/monitors/{id}", monitorHandler.Get)
-		api.Put("/monitors/{id}", monitorHandler.Update)
-		api.Delete("/monitors/{id}", monitorHandler.Delete)
-		api.Get("/monitors/{id}/checks", checkHandler.History)
-		api.Post("/monitors/{id}/check", checkHandler.Run)
+		api.Get("/monitors", h.monitorHandler.List)
+		api.Post("/monitors", h.monitorHandler.Create)
+		api.Get("/monitors/{id}", h.monitorHandler.Get)
+		api.Put("/monitors/{id}", h.monitorHandler.Update)
+		api.Delete("/monitors/{id}", h.monitorHandler.Delete)
+		api.Get("/monitors/{id}/checks", h.checkHandler.History)
+		api.Post("/monitors/{id}/check", h.checkHandler.Run)
 	})
 
-	staticHandler := http.FileServer(http.Dir(webDir))
-	router.Handle("/*", staticHandler)
-	return router
+	router.Handle("/*", http.FileServer(http.Dir(h.webDir)))
 }
 
 func requestPathParam(request *http.Request, name string) string {
