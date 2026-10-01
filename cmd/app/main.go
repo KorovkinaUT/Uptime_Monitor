@@ -93,7 +93,9 @@ func run(logger *slog.Logger) error {
 
 	if err := scheduler.Wait(shutdownCtx); err != nil {
 		logger.Error("scheduler shutdown failed", "error", err)
-		shutdownErr = err
+		if shutdownErr == nil {
+			shutdownErr = err
+		}
 	}
 	if err := workerPool.Stop(shutdownCtx); err != nil {
 		logger.Error("worker pool shutdown failed", "error", err)
