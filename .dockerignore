@@ -1,10 +1,8 @@
 .git
 .env
+.gitignore
 *.log
+*.test
 coverage.out
-uptime-monitor
-bin
-task.md
-promt.md
 Отчёт.md
 README.md

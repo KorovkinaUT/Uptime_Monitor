@@ -1,5 +1,5 @@
 *.log
+*.test
 coverage.out
 uptime-monitor
 bin/
-.DS_Store
