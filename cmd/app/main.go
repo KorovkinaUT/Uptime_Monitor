@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/ulyana/uptime-monitor/internal/application"
 	"github.com/ulyana/uptime-monitor/internal/infrastructure/config"
@@ -40,7 +39,7 @@ func run(logger *slog.Logger) error {
 	databasePool, err := postgres.NewPool(
 		ctx,
 		cfg.DatabaseURL,
-		time.Duration(cfg.DatabasePingTimeout)*time.Second,
+		cfg.DatabasePingTimeout,
 	)
 	if err != nil {
 		return err
@@ -76,7 +75,7 @@ func run(logger *slog.Logger) error {
 		monitorRepository,
 		inFlight,
 		workerPool,
-		time.Duration(cfg.SchedulerInterval)*time.Second,
+		cfg.SchedulerInterval,
 		logger,
 	)
 	scheduler.Start(ctx)
@@ -98,7 +97,7 @@ func run(logger *slog.Logger) error {
 	// Give every shutdown operation one shared deadline
 	shutdownCtx, cancel := context.WithTimeout(
 		context.Background(),
-		time.Duration(cfg.ShutdownTimeout)*time.Second,
+		cfg.ShutdownTimeout,
 	)
 	defer cancel()
 
