@@ -7,13 +7,13 @@ import (
 )
 
 type Config struct {
-	HTTPAddr                   string
-	DatabaseURL                string
-	WorkerCount                int
-	JobQueueCapacity           int
-	SchedulerIntervalSeconds   int
-	DatabasePingTimeoutSeconds int
-	ShutdownTimeoutSeconds     int
+	HTTPAddr                 string
+	DatabaseURL              string
+	WorkerCount              int
+	JobQueueCapacity         int
+	SchedulerIntervalSeconds int
+	DatabasePingTimeout      int
+	ShutdownTimeout          int
 }
 
 func Load() (Config, error) {
@@ -34,23 +34,23 @@ func Load() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-	databasePingTimeout, err := positiveIntEnv("DATABASE_PING_TIMEOUT_SECONDS", 5)
+	databasePingTimeout, err := positiveIntEnv("DATABASE_PING_TIMEOUT", 5)
 	if err != nil {
 		return Config{}, err
 	}
-	shutdownTimeout, err := positiveIntEnv("SHUTDOWN_TIMEOUT_SECONDS", 10)
+	shutdownTimeout, err := positiveIntEnv("SHUTDOWN_TIMEOUT", 10)
 	if err != nil {
 		return Config{}, err
 	}
 
 	return Config{
-		HTTPAddr:                   envOrDefault("HTTP_ADDR", ":8080"),
-		DatabaseURL:                databaseURL,
-		WorkerCount:                workerCount,
-		JobQueueCapacity:           queueCapacity,
-		SchedulerIntervalSeconds:   schedulerInterval,
-		DatabasePingTimeoutSeconds: databasePingTimeout,
-		ShutdownTimeoutSeconds:     shutdownTimeout,
+		HTTPAddr:                 envOrDefault("HTTP_ADDR", ":8080"),
+		DatabaseURL:              databaseURL,
+		WorkerCount:              workerCount,
+		JobQueueCapacity:         queueCapacity,
+		SchedulerIntervalSeconds: schedulerInterval,
+		DatabasePingTimeout:      databasePingTimeout,
+		ShutdownTimeout:          shutdownTimeout,
 	}, nil
 }
 

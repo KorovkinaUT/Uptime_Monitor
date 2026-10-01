@@ -5,8 +5,8 @@ import "testing"
 func TestLoadTimeoutDefaults(t *testing.T) {
 	//arrange
 	t.Setenv("DATABASE_URL", "postgres://uptime:uptime@localhost:5432/uptime")
-	t.Setenv("DATABASE_PING_TIMEOUT_SECONDS", "")
-	t.Setenv("SHUTDOWN_TIMEOUT_SECONDS", "")
+	t.Setenv("DATABASE_PING_TIMEOUT", "")
+	t.Setenv("SHUTDOWN_TIMEOUT", "")
 
 	//act
 	cfg, err := Load()
@@ -15,18 +15,18 @@ func TestLoadTimeoutDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
-	if cfg.DatabasePingTimeoutSeconds != 5 {
-		t.Errorf("DatabasePingTimeoutSeconds = %d, want 5", cfg.DatabasePingTimeoutSeconds)
+	if cfg.DatabasePingTimeout != 5 {
+		t.Errorf("DatabasePingTimeout = %d, want 5", cfg.DatabasePingTimeout)
 	}
-	if cfg.ShutdownTimeoutSeconds != 10 {
-		t.Errorf("ShutdownTimeoutSeconds = %d, want 10", cfg.ShutdownTimeoutSeconds)
+	if cfg.ShutdownTimeout != 10 {
+		t.Errorf("ShutdownTimeout = %d, want 10", cfg.ShutdownTimeout)
 	}
 }
 
 func TestLoadRejectsInvalidShutdownTimeout(t *testing.T) {
 	//arrange
 	t.Setenv("DATABASE_URL", "postgres://uptime:uptime@localhost:5432/uptime")
-	t.Setenv("SHUTDOWN_TIMEOUT_SECONDS", "0")
+	t.Setenv("SHUTDOWN_TIMEOUT", "0")
 
 	//act
 	_, err := Load()

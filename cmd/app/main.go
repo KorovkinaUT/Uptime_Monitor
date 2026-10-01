@@ -30,13 +30,13 @@ func run(logger *slog.Logger) error {
 		return fmt.Errorf("load config: %w", err)
 	}
 
-	appCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	databasePool, err := postgres.NewPool(
-		appCtx,
+		ctx,
 		cfg.DatabaseURL,
-		time.Duration(cfg.DatabasePingTimeoutSeconds)*time.Second,
+		time.Duration(cfg.DatabasePingTimeout)*time.Second,
 	)
 	if err != nil {
 		return err
@@ -48,8 +48,8 @@ func run(logger *slog.Logger) error {
 	checkRepository := postgres.NewCheckRepository(databasePool)
 	monitorService := application.NewMonitorService(monitorRepository, checkRepository)
 	inFlight := application.NewInFlightRegistry()
-	httpChecker := httpclient.NewChecker()
-	checkService := application.NewCheckService(monitorRepository, checkRepository, httpChecker, inFlight, logger)
+	checker := httpclient.NewChecker()
+	checkService := application.NewCheckService(monitorRepository, checkRepository, checker, inFlight, logger)
 
 	workerPool, err := application.NewWorkerPool(
 		cfg.WorkerCount,
@@ -72,7 +72,7 @@ func run(logger *slog.Logger) error {
 		time.Duration(cfg.SchedulerIntervalSeconds)*time.Second,
 		logger,
 	)
-	scheduler.Start(appCtx)
+	scheduler.Start(ctx)
 
 	server := httpserver.NewServer(cfg.HTTPAddr, httpserver.Dependencies{
 		Monitors: monitorService,
@@ -83,12 +83,12 @@ func run(logger *slog.Logger) error {
 	server.Start(logger, stop)
 	logger.Info("application started")
 
-	<-appCtx.Done()
+	<-ctx.Done()
 	logger.Info("shutdown signal received")
 
 	shutdownCtx, cancel := context.WithTimeout(
 		context.Background(),
-		time.Duration(cfg.ShutdownTimeoutSeconds)*time.Second,
+		time.Duration(cfg.ShutdownTimeout)*time.Second,
 	)
 	defer cancel()
 	// Stop HTTP intake before draining scheduler and worker activity
