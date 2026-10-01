@@ -26,15 +26,17 @@ func main() {
 
 // run builds dependencies and manages the application lifecycle
 func run(logger *slog.Logger) error {
-	// Build all application dependencies
+	// Load configuration before opening external resources
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
 	}
 
+	// Propagate termination signals to every background component
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	// Keep the database open while services finish their work
 	databasePool, err := postgres.NewPool(
 		ctx,
 		cfg.DatabaseURL,
@@ -46,6 +48,7 @@ func run(logger *slog.Logger) error {
 	defer databasePool.Close()
 	logger.Info("database connected")
 
+	// Build application services around shared repositories
 	monitorRepository := postgres.NewMonitorRepository(databasePool)
 	checkRepository := postgres.NewCheckRepository(databasePool)
 	monitorService := application.NewMonitorService(monitorRepository, checkRepository)
@@ -53,6 +56,7 @@ func run(logger *slog.Logger) error {
 	checker := httpclient.NewChecker()
 	checkService := application.NewCheckService(monitorRepository, checkRepository, checker, inFlight, logger)
 
+	// Execute checks through a bounded queue
 	workerPool, err := application.NewWorkerPool(
 		cfg.WorkerCount,
 		cfg.JobQueueCapacity,
@@ -67,6 +71,7 @@ func run(logger *slog.Logger) error {
 	}
 	workerPool.Start()
 
+	// Schedule only monitors whose next check is due
 	scheduler := application.NewScheduler(
 		monitorRepository,
 		inFlight,
@@ -76,6 +81,7 @@ func run(logger *slog.Logger) error {
 	)
 	scheduler.Start(ctx)
 
+	// Expose the application services through the HTTP transport
 	server := httpserver.NewServer(cfg.HTTPAddr, httpserver.Dependencies{
 		Monitors: monitorService,
 		Checks:   checkService,
@@ -85,16 +91,18 @@ func run(logger *slog.Logger) error {
 	server.Start(logger, stop)
 	logger.Info("application started")
 
+	// Wait until a termination signal cancels the application context
 	<-ctx.Done()
 	logger.Info("starting shutdown")
 
+	// Give every shutdown operation one shared deadline
 	shutdownCtx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Duration(cfg.ShutdownTimeout)*time.Second,
 	)
 	defer cancel()
-	// Stop HTTP intake before draining scheduler and worker activity
 
+	// Stop new requests before draining scheduled and queued checks
 	var shutdownErr error
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		logger.Error("HTTP server shutdown failed", "error", err)
@@ -114,6 +122,7 @@ func run(logger *slog.Logger) error {
 		}
 	}
 
+	// Return the first shutdown error after all components had a chance to stop
 	logger.Info("application shutdown complete")
 	return shutdownErr
 }
