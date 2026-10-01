@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-uptime}
-      POSTGRES_USER: ${POSTGRES_USER:-uptime}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-uptime}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
-      timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT:-5s}
+      timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT}
       retries: 10
 
   migrate:
@@ -22,7 +22,7 @@ services:
       - ./migrations:/migrations:ro
     command:
       - "-path=/migrations"
-      - "-database=postgres://${POSTGRES_USER:-uptime}:${POSTGRES_PASSWORD:-uptime}@postgres:5432/${POSTGRES_DB:-uptime}?sslmode=disable"
+      - "-database=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
       - "up"
 
   app:
@@ -32,15 +32,15 @@ services:
       migrate:
         condition: service_completed_successfully
     environment:
-      HTTP_ADDR: ${HTTP_ADDR:-:8080}
-      DATABASE_URL: postgres://${POSTGRES_USER:-uptime}:${POSTGRES_PASSWORD:-uptime}@postgres:5432/${POSTGRES_DB:-uptime}?sslmode=disable
-      WORKER_COUNT: ${WORKER_COUNT:-5}
-      JOB_QUEUE_CAPACITY: ${JOB_QUEUE_CAPACITY:-100}
-      SCHEDULER_INTERVAL: ${SCHEDULER_INTERVAL:-1s}
-      DATABASE_PING_TIMEOUT: ${DATABASE_PING_TIMEOUT:-5s}
-      SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-10s}
+      HTTP_ADDR: ${HTTP_ADDR}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+      WORKER_COUNT: ${WORKER_COUNT}
+      JOB_QUEUE_CAPACITY: ${JOB_QUEUE_CAPACITY}
+      SCHEDULER_INTERVAL: ${SCHEDULER_INTERVAL}
+      DATABASE_PING_TIMEOUT: ${DATABASE_PING_TIMEOUT}
+      SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT}
     ports:
-      - "${APP_PORT:-8080}:8080"
+      - "${APP_PORT}:8080"
 
 volumes:
   postgres-data:
