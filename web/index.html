@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Uptime Monitor</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="container">
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">Service health</p>
+            <h1>Uptime Monitor</h1>
+        </div>
+        <button class="button button-primary" id="add-monitor" type="button">Add monitor</button>
+    </header>
+
+    <p class="notice" id="notice" role="status"></p>
+
+    <section class="card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>URL</th>
+                    <th>Enabled</th>
+                    <th>Status</th>
+                    <th>Latency</th>
+                    <th>Last check</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="monitors-body"></tbody>
+            </table>
+        </div>
+        <p class="empty-state" id="empty-state">No monitors yet.</p>
+    </section>
+</main>
+
+<div class="modal hidden" id="monitor-modal" role="dialog" aria-modal="true" aria-labelledby="monitor-modal-title">
+    <div class="modal-panel">
+        <div class="modal-header">
+            <h2 id="monitor-modal-title">Add monitor</h2>
+            <button class="icon-button" type="button" data-close="monitor-modal" aria-label="Close">×</button>
+        </div>
+        <form id="monitor-form">
+            <label>
+                Name
+                <input name="name" type="text" maxlength="255" required>
+            </label>
+            <label>
+                URL
+                <input name="url" type="url" placeholder="https://example.com/health" required>
+            </label>
+            <div class="form-row">
+                <label>
+                    Check interval, sec
+                    <input name="interval_seconds" type="number" min="1" required>
+                </label>
+                <label>
+                    Timeout, sec
+                    <input name="timeout_seconds" type="number" min="1" required>
+                </label>
+            </div>
+            <label class="checkbox-label">
+                <input name="enabled" type="checkbox" checked>
+                Enabled
+            </label>
+            <p class="form-error" id="monitor-form-error"></p>
+            <div class="modal-actions">
+                <button class="button button-secondary" type="button" data-close="monitor-modal">Cancel</button>
+                <button class="button button-primary" type="submit" id="monitor-submit">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal hidden" id="history-modal" role="dialog" aria-modal="true" aria-labelledby="history-modal-title">
+    <div class="modal-panel modal-panel-wide">
+        <div class="modal-header">
+            <h2 id="history-modal-title">Check history</h2>
+            <button class="icon-button" type="button" data-close="history-modal" aria-label="Close">×</button>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>HTTP</th>
+                    <th>Latency</th>
+                    <th>Error</th>
+                </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+        </div>
+        <p class="empty-state" id="history-empty">No checks yet.</p>
+    </div>
+</div>
+
+<script src="/app.js" defer></script>
+</body>
+</html>
