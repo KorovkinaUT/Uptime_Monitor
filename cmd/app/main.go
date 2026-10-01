@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/ulyana/uptime-monitor/internal/application"
-	"github.com/ulyana/uptime-monitor/internal/infrastructure/checker"
 	"github.com/ulyana/uptime-monitor/internal/infrastructure/config"
-	"github.com/ulyana/uptime-monitor/internal/infrastructure/httpserver"
+	httpclient "github.com/ulyana/uptime-monitor/internal/infrastructure/http/client"
+	httpserver "github.com/ulyana/uptime-monitor/internal/infrastructure/http/server"
 	"github.com/ulyana/uptime-monitor/internal/infrastructure/postgres"
 )
 
@@ -44,7 +44,7 @@ func run(logger *slog.Logger) error {
 	checkRepository := postgres.NewCheckRepository(databasePool)
 	monitorService := application.NewMonitorService(monitorRepository, checkRepository)
 	inFlight := application.NewInFlightRegistry()
-	httpChecker := checker.NewHTTPChecker(nil)
+	httpChecker := httpclient.NewChecker()
 	checkService := application.NewCheckService(monitorRepository, checkRepository, httpChecker, inFlight, logger)
 
 	workerPool, err := application.NewWorkerPool(

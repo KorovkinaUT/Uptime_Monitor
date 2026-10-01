@@ -1,4 +1,4 @@
-package checker
+package client
 
 import (
 	"context"
@@ -9,18 +9,18 @@ import (
 	"github.com/ulyana/uptime-monitor/internal/domain"
 )
 
-type HTTPChecker struct {
+// Checker performs HTTP checks with its own client
+type Checker struct {
 	client *http.Client
 }
 
-func NewHTTPChecker(client *http.Client) *HTTPChecker {
-	if client == nil {
-		client = &http.Client{}
-	}
-	return &HTTPChecker{client: client}
+// NewChecker creates a checker with an internal HTTP client
+func NewChecker() *Checker {
+	client := &http.Client{}
+	return &Checker{client: client}
 }
 
-func (c *HTTPChecker) Check(ctx context.Context, monitor domain.Monitor) (application.CheckResult, error) {
+func (c *Checker) Check(ctx context.Context, monitor domain.Monitor) (application.CheckResult, error) {
 	// Apply the timeout configured for this monitor only
 	requestCtx, cancel := context.WithTimeout(ctx, time.Duration(monitor.TimeoutSeconds)*time.Second)
 	defer cancel()

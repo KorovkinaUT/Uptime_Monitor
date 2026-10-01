@@ -1,4 +1,4 @@
-package checker
+package client
 
 import (
 	"context"
@@ -30,7 +30,7 @@ func TestHTTPCheckerStatusMapping(t *testing.T) {
 			}))
 			defer server.Close()
 			monitor := testMonitor(server.URL)
-			client := NewHTTPChecker(nil)
+			client := NewChecker()
 
 			//act
 			result, err := client.Check(context.Background(), monitor)
@@ -58,7 +58,7 @@ func TestHTTPCheckerTimeout(t *testing.T) {
 	}))
 	defer server.Close()
 	monitor := testMonitor(server.URL)
-	client := NewHTTPChecker(nil)
+	client := NewChecker()
 
 	//act
 	result, err := client.Check(context.Background(), monitor)
@@ -89,7 +89,7 @@ func TestHTTPCheckerLatency(t *testing.T) {
 	}))
 	defer server.Close()
 	monitor := testMonitor(server.URL)
-	client := NewHTTPChecker(nil)
+	client := NewChecker()
 
 	//act
 	result, err := client.Check(context.Background(), monitor)

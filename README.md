@@ -9,7 +9,7 @@ Uptime Monitor — небольшое клиент-серверное прило
 
 - `internal/domain` — модели и правила валидации предметной области
 - `internal/application` — use cases, repository contracts, scheduler и worker pool
-- `internal/infrastructure` — PostgreSQL, HTTP checker, REST API, конфигурация и static frontend
+- `internal/infrastructure` — PostgreSQL, http/client, http/server, конфигурация и static frontend
 
 `cmd/app/main.go` является composition root и собирает все зависимости приложения.
 
