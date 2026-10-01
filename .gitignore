@@ -1,0 +1,6 @@
+.env
+*.log
+coverage.out
+uptime-monitor
+bin/
+.DS_Store

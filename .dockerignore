@@ -1,0 +1,10 @@
+.git
+.env
+*.log
+coverage.out
+uptime-monitor
+bin
+task.md
+promt.md
+Отчёт.md
+README.md
