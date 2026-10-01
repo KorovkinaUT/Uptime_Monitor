@@ -75,7 +75,7 @@ func (s *CheckService) RunClaimed(ctx context.Context, monitorID uuid.UUID) (dom
 		return domain.Check{}, fmt.Errorf("save monitor check: %w", err)
 	}
 	if check.Status == domain.CheckStatusDown {
-		s.logger.Warn("monitor check is down", "monitor_id", monitor.ID, "status_code", check.StatusCode, "error", check.Error)
+		logDownCheck(s.logger, monitor.ID, check)
 	}
 
 	return check, nil
