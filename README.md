@@ -54,7 +54,6 @@ docker compose down
 | `SCHEDULER_INTERVAL` | `1s` | Интервал работы scheduler |
 | `DATABASE_PING_TIMEOUT` | `5s` | Timeout проверки подключения к PostgreSQL |
 | `SHUTDOWN_TIMEOUT` | `10s` | Timeout graceful shutdown |
-| `POSTGRES_HEALTHCHECK_TIMEOUT` | `5s` | Timeout PostgreSQL healthcheck в Compose |
 | `APP_PORT` | `8080` | Порт хоста в Docker Compose |
 | `POSTGRES_DB` | `uptime` | Имя базы данных в Compose |
 | `POSTGRES_USER` | `uptime` | Пользователь PostgreSQL в Compose |
