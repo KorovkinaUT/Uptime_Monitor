@@ -47,7 +47,7 @@ docker compose down
 
 | Переменная | Default | Назначение |
 | --- | --- | --- |
-| `HTTP_PORT` | `8080` | Порт HTTP listener |
+| `HTTP_PORT` | `8080` | Порт HTTP listener внутри контейнера |
 | `DATABASE_URL` | — | PostgreSQL connection string для локального запуска |
 | `WORKER_COUNT` | `5` | Количество worker goroutines |
 | `JOB_QUEUE_CAPACITY` | `100` | Максимальный размер очереди jobs |
@@ -55,7 +55,7 @@ docker compose down
 | `DATABASE_PING_TIMEOUT` | `5s` | Timeout проверки подключения к PostgreSQL |
 | `SHUTDOWN_TIMEOUT` | `10s` | Timeout graceful shutdown |
 | `POSTGRES_HEALTHCHECK_TIMEOUT` | `5s` | Timeout PostgreSQL healthcheck в Compose |
-| `APP_PORT` | `8080` | Host port в Docker Compose |
+| `APP_PORT` | `8080` | Порт хоста в Docker Compose |
 | `POSTGRES_DB` | `uptime` | Имя базы данных в Compose |
 | `POSTGRES_USER` | `uptime` | Пользователь PostgreSQL в Compose |
 | `POSTGRES_PASSWORD` | `uptime` | Пароль PostgreSQL в Compose |
@@ -94,7 +94,7 @@ curl -X POST http://localhost:8080/monitors \
 
 ## Scheduler и worker pool
 
-Scheduler каждую секунду запрашивает только enabled monitors, для которых истёк interval или ещё не было check.
+Scheduler с интервалом `SCHEDULER_INTERVAL` запрашивает только enabled monitors, для которых истёк interval или ещё не было check.
 Jobs попадают в bounded channel с capacity `JOB_QUEUE_CAPACITY`.
 Фиксированное количество workers выполняет HTTP checks и сохраняет результаты.
 
