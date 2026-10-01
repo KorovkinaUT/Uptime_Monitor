@@ -29,7 +29,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-После запуска frontend доступен по адресу `http://localhost:8080`.
+После запуска frontend доступен по адресу `http://localhost:${APP_PORT}`; по умолчанию — `http://localhost:8080`.
 
 Compose запускает сервисы в следующем порядке:
 
