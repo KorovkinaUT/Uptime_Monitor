@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uptime-monitor-config
+  namespace: uptime-monitor
+data:
+  HTTP_PORT: "8080"
+  WORKER_COUNT: "5"
+  JOB_QUEUE_CAPACITY: "100"
+  SCHEDULER_INTERVAL: 1s
+  DATABASE_PING_TIMEOUT: 5s
+  SHUTDOWN_TIMEOUT: 10s
+  POSTGRES_DB: uptime
+  POSTGRES_USER: uptime
