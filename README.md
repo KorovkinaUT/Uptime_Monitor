@@ -18,7 +18,7 @@ Uptime Monitor — небольшое клиент-серверное прило
 - Go 1.26, `net/http`, `chi` и `log/slog`
 - PostgreSQL и `pgx/v5/pgxpool`
 - HTML, CSS и Vanilla JavaScript
-- Docker Compose и SQL migrations
+- Docker Compose, Kubernetes/Minikube и SQL migrations
 
 ## Запуск через Docker
 
@@ -41,6 +41,97 @@ Compose запускает сервисы в следующем порядке:
 
 ```bash
 docker compose down
+```
+
+## Запуск через Kubernetes
+
+Для запуска через Minikube используются манифесты из каталога `k8s/` и отдельный образ `k8s.Dockerfile`.
+
+Запустите Minikube с Docker runtime:
+
+```bash
+minikube start \
+  --driver=docker \
+  --container-runtime=docker
+```
+
+Переключите Docker CLI на Docker daemon Minikube и соберите образ:
+
+```bash
+eval $(minikube docker-env)
+docker build -f k8s.Dockerfile -t uptime-monitor:local .
+```
+
+Образ содержит backend, frontend, CLI `migrate` и каталог `migrations`. Он используется и приложением, и отдельным Kubernetes Job для миграций.
+
+Применяйте ресурсы в следующем порядке:
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/postgres.yaml
+
+kubectl wait \
+  --for=condition=ready pod/postgres-0 \
+  --timeout=120s \
+  --namespace=uptime-monitor
+
+kubectl apply -f k8s/migrations-job.yaml
+
+kubectl wait \
+  --for=condition=complete job/uptime-monitor-migrate \
+  --timeout=120s \
+  --namespace=uptime-monitor
+
+kubectl apply -f k8s/app.yaml
+
+kubectl wait \
+  --for=condition=available deployment/uptime-monitor \
+  --timeout=120s \
+  --namespace=uptime-monitor
+```
+
+Проверить состояние ресурсов можно командой:
+
+```bash
+kubectl get pods,services,statefulsets,deployments,jobs,pvc \
+  --namespace=uptime-monitor
+```
+
+Frontend публикуется через `NodePort` Service. Получить URL приложения:
+
+```bash
+minikube service uptime-monitor \
+  --url \
+  --namespace=uptime-monitor
+```
+
+В Kubernetes backend подключается к PostgreSQL через Service `postgres`:
+
+```text
+postgres://uptime:uptime@postgres:5432/uptime?sslmode=disable
+```
+
+Несекретные параметры приложения и PostgreSQL находятся в `ConfigMap`, а `POSTGRES_PASSWORD` и `DATABASE_URL` — в `Secret`. Переменная `APP_PORT` в Kubernetes не используется: она нужна только Docker Compose для публикации container port на host.
+
+Для демонстрации масштабирования backend:
+
+```bash
+kubectl scale deployment/uptime-monitor \
+  --replicas=3 \
+  --namespace=uptime-monitor
+
+kubectl get pods \
+  --selector=app=uptime-monitor \
+  --namespace=uptime-monitor
+```
+
+После демонстрации можно вернуть одну реплику:
+
+```bash
+kubectl scale deployment/uptime-monitor \
+  --replicas=1 \
+  --namespace=uptime-monitor
 ```
 
 ## Конфигурация

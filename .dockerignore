@@ -3,5 +3,5 @@
 .gitignore
 *.test
 coverage.out
-Отчёт.md
+reports/
 README.md
