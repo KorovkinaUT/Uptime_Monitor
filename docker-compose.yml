@@ -28,6 +28,7 @@ services:
   app:
     build:
       context: .
+      dockerfile: compose.Dockerfile
     depends_on:
       migrate:
         condition: service_completed_successfully
